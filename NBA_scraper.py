@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import csv
 
 def soupify(url):
     "Takes a url and returns document."
@@ -25,4 +26,25 @@ for name in teams:
         for li_tag in ul_tag.find_all('li',{'class': 'score'}):
             game = li_tag.a.get('href')[30:39] #Extract id number.
             if game not in game_ids: #Avoid duplicates.
-                game_ids.append((game, name))
+                game_ids.append(game)
+
+#Collect box scores for each collected game id and write to csv.
+with open('NBA_game_stats.csv','w') as csvfile:
+    filewriter = csv.writer(csvfile, delimiter=',',quotechar='|',quoting=csv.QUOTE_MINIMAL)
+    filewriter.writerow(['fg','3pt','ft','oreb','dreb','reb','ast','stl','blk','to','pf','pts','id','team'])
+    
+    for game in game_ids:
+        soup = soupify('http://www.espn.com/nba/boxscore?gameId=' + game)
+        data = soup.find_all('tr',{'class': 'highlight'})
+
+        highlights = [data[0],data[2]] #Extract relevant highlights.
+
+        for scores in highlights:
+            team_data= []
+
+            for td_tag in scores.find_all('td'):
+                if len(td_tag.text) > 0: #Ignore empty fields.
+                    team_data.append(td_tag.text)
+        
+            team_data.append(game)
+            filewriter.writerow(team_data[1:])
