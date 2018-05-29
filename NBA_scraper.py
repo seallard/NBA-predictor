@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
+from datetime import datetime
 
 def soupify(url):
     "Takes url and returns document."
@@ -30,10 +31,12 @@ for name in teams:
     for date in data[0].find_all('td'):
         if ',' in date.text: #Only date td contain ','.
             if any(m in date.text for m in months):
-                year = ' 2017'
+                year = '2017'
             else:
-                year = ' 2018'
-            dates.append(year + date.text.split(',')[-1])
+                year = '2018'
+            
+            formatted_date = datetime.strptime(year + date.text.split(',')[-1],'%Y %b %d').date()
+            dates.append(formatted_date)
 
     #Collecting id:s.
     for ul_tag in soup.find_all('ul', {'class': 'game-schedule'}):
