@@ -35,7 +35,7 @@ for name in teams:
             else:
                 year = '2018'
             
-            formatted_date = datetime.strptime(year + date.text.split(',')[-1],'%Y %b %d').date()
+            formatted_date = datetime.strptime(year + date.text.split(',')[-1],'%Y %b %d').date() #Convert date string to date object. 
             dates.append(formatted_date)
 
     #Collecting id:s.
@@ -46,18 +46,24 @@ for name in teams:
             if game not in game_ids: #Avoid duplicates.
                 game_ids.append(game)
 
-#Collect box scores for each collected game id and write to csv.
+#Collect box scores and team names for each collected game id and write to csv.
 with open('NBA_game_stats.csv','w') as csvfile:
     filewriter = csv.writer(csvfile, delimiter=',',quotechar='|',quoting=csv.QUOTE_MINIMAL)
     filewriter.writerow(['fg','3pt','ft','oreb','dreb','reb','ast','stl','blk','to','pf','pts','id','team','date'])
     
     for i,game in enumerate(game_ids):
         soup = soupify('http://www.espn.com/nba/boxscore?gameId=' + game)
+        
+        #Collecting team names for current game.
+        teams = []
+        for div in soup.find_all('div',{'class': 'team-name'}):
+            teams.append(div.text)
+        
+        #Collecting box scores.
         data = soup.find_all('tr',{'class': 'highlight'})
-
         highlights = [data[0],data[2]] #Extract relevant highlights.
 
-        for scores in highlights:
+        for k,scores in enumerate(highlights):
             team_data= []
 
             for td_tag in scores.find_all('td'):
@@ -65,5 +71,6 @@ with open('NBA_game_stats.csv','w') as csvfile:
                     team_data.append(td_tag.text)
         
             team_data.append(game)
+            team_data.append(teams[k])
             team_data.append(dates[i])
             filewriter.writerow(team_data[1:])
