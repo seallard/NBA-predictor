@@ -20,7 +20,6 @@ for ul_tag in soup.find_all('ul', {'class': 'medium-logos'}):
 #Collect all game id:s and dates for each team. 
 game_ids = []
 dates = []
-months = ['Oct','Nov','Dec']
 
 for name in teams:
     soup = soupify('http://www.espn.com/nba/team/schedule/_/name/' + name + '/seasontype/2')
@@ -30,7 +29,7 @@ for name in teams:
 
     for date in data[0].find_all('td'):
         if ',' in date.text: #Only date td contain ','.
-            if any(m in date.text for m in months):
+            if any(m in date.text for m in ['Oct','Nov','Dec']):
                 year = '2017'
             else:
                 year = '2018'
@@ -47,30 +46,31 @@ for name in teams:
                 game_ids.append(game)
 
 #Collect box scores and team names for each collected game id and write to csv.
-with open('NBA_game_stats.csv','w') as csvfile:
+with open('NBA_game_stats.csv','w',newline='') as csvfile:
     filewriter = csv.writer(csvfile, delimiter=',',quotechar='|',quoting=csv.QUOTE_MINIMAL)
-    filewriter.writerow(['fg','3pt','ft','oreb','dreb','reb','ast','stl','blk','to','pf','pts','id','team','date'])
+    filewriter.writerow(['fg','3pt','ft','oreb','dreb','reb','ast','stl','blk','to','pf','pts','id','team','home','date'])
     
     for i,game in enumerate(game_ids):
         soup = soupify('http://www.espn.com/nba/boxscore?gameId=' + game)
         
-        #Collecting team names for current game.
+        #Collecting team names and home/away status for current game.
         teams = []
-        for div in soup.find_all('div',{'class': 'team-name'}):
-            teams.append(div.text)
+        for div in soup.find_all('div',{'class': 'team away'}):
+            teams.append((div.find('span',{'class': 'short-name'}).text,0)) #Save tuple (name,away=0)
         
-        #Collecting box scores.
+        for div in soup.find_all('div',{'class': 'team home'}):
+            teams.append((div.find('span',{'class': 'short-name'}).text,1)) #Save tuple (name,home=1)
+
+        #Collecting box scores for current game.
         data = soup.find_all('tr',{'class': 'highlight'})
         highlights = [data[0],data[2]] #Extract relevant highlights.
 
         for k,scores in enumerate(highlights):
-            team_data= []
+            team_data = []
 
             for td_tag in scores.find_all('td'):
                 if len(td_tag.text) > 0: #Ignore empty fields.
                     team_data.append(td_tag.text)
         
-            team_data.append(game)
-            team_data.append(teams[k])
-            team_data.append(dates[i])
+            team_data.extend((game,teams[k][0],teams[k][1],dates[i]))
             filewriter.writerow(team_data[1:])
