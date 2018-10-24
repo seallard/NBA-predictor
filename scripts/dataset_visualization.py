@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 
+import matplotlib.patches as mpatches
+
 def diff(row_1,row_2):
     """
     Calculates the differences between box-scores from the csv as 
@@ -18,36 +20,49 @@ def diff(row_1,row_2):
     
     return home-away
 
-
-#Initialize plot. 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
-#Load data into pandas dataframe.
+# Load data into pandas dataframe.
 df = pd.read_csv('clean_dataset.csv')
 
-#Iterate over dataframe and plot each game. 
-i=0
-while i < df.shape[0]:
-    game_result = diff(df.ix[i],df.ix[i+1]) #Takes two consecutive rows and calls diff function. 
-    i += 2
+# Selecting which parameters (x, y, z), columns in the data set, to plot together.
+parameters_to_plot = [(4, 8, 9), (0, 1, 2), (3, 6, 7), (5, 10, 11)] 
 
-    #Set color of data point, if home won: green, else: red. 
-    if game_result[-2] > 0:
-        c = 'green'
-    else:
-        c = 'red'
+# Corresponding axis labels. 
+xlabels = ['Defensive rebound difference', 'Field goal difference', 'Offensive rebound difference', 'Total rebound difference']
+ylabels = ['Block difference', '3pt difference', 'Assist difference', 'Personal foul difference']
+zlabels = ['Turnover difference', 'Freethrow difference', 'Steal difference', 'Total point difference']
+
+# Iterate over the selected parameters to plot. 
+for p, parameters in enumerate(parameters_to_plot):
+
+    # Initialize plot. 
+    fig = plt.figure(p)
+    ax = fig.add_subplot(111, projection='3d')
     
-    #Plot data points (change indexes to plot different score differentials). 
-    x = game_result[3]
-    y = game_result[6]
-    z = game_result[7]
+    # Iterate over data set plot selected parameters of each game.
+    for i in range(0, df.shape[0], 2):
+
+        # Calculate difference between box scores in consecutive rows. 
+        game_result = diff(df.ix[i],df.ix[i+1]) 
+
+        # Set color of data point to green if home team won, else red. 
+        if game_result[-2] > 0:
+            c = 'green' 
+        else:
+            c = 'red'
     
-    ax.scatter(x, y, z, c=c)
+        # Collect coordinates for selected parameters.
+        x_column, y_column, z_column = parameters
 
+        x = game_result[x_column]
+        y = game_result[z_column]
+        z = game_result[y_column]
 
-ax.set_xlabel('Offensive rebound differential')
-ax.set_ylabel('Assist differential')
-ax.set_zlabel('Steal differential')
+        # Plot data point.
+        ax.scatter(x, y, z, c=c)
+    
+    # Format plot.
+    ax.set_xlabel(xlabels[p])
+    ax.set_ylabel(ylabels[p])
+    ax.set_zlabel(zlabels[p])
 
 plt.show()
