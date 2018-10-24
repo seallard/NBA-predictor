@@ -2,7 +2,6 @@ import csv
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
-
 import matplotlib.patches as mpatches
 
 def diff(row_1,row_2):
@@ -64,5 +63,9 @@ for p, parameters in enumerate(parameters_to_plot):
     ax.set_xlabel(xlabels[p])
     ax.set_ylabel(ylabels[p])
     ax.set_zlabel(zlabels[p])
+
+    green_patch = mpatches.Patch(color='green', label='Home team won')
+    red_patch = mpatches.Patch(color='red', label='Home team lost')
+    plt.legend(handles=[green_patch, red_patch])
 
 plt.show()
