@@ -6,11 +6,14 @@ import matplotlib.patches as mpatches
 
 def diff(i):
     """
-    Returns difference between row i and row i+1.
+    Returns the difference between scores in two rows i and row i+1 as
+    home team scores - away team scores. 
     """
+    # Select rows from data frame.
     first_row = df.iloc[i]
     second_row = df.iloc[i+1]
 
+    # Determine which row represents home team scores.
     if first_row['home']:
         home = first_row
         away = second_row
@@ -43,31 +46,33 @@ for p, parameters in enumerate(scores_to_plot):
     for i in range(0, df.shape[0], 2):
 
         # Calculate difference between box scores in consecutive rows.
-        game_result = diff(i) 
+        game_result = diff(i)
 
         # Set color of data point to green if home team won, else red.
         if game_result['pts'] > 0:
-            c = 'green' 
+            color = 'green' 
+
         else:
-            c = 'red'
-    
+            color = 'red'
+            
         # Collect coordinates for selected parameters.
         x_column, y_column, z_column = parameters
 
         x = game_result[x_column]
-        y = game_result[z_column]
-        z = game_result[y_column]
+        y = game_result[y_column]
+        z = game_result[z_column]
 
-        # Plot data point (each point represents selected parameters for a single game).
-        ax.scatter(x, y, z, c=c)
+        # Plot data point (each point represents a single game).
+        ax.scatter(x, y, z, c=color)
     
-    # Format plot.
+    # Set axis labels.
     ax.set_xlabel(axis_labels[x_column] + ' difference')
     ax.set_ylabel(axis_labels[y_column] + ' difference')
     ax.set_zlabel(axis_labels[z_column] + ' difference')
 
+    # Set legend.
     green_patch = mpatches.Patch(color='green', label='Home team won')
     red_patch = mpatches.Patch(color='red', label='Home team lost')
     plt.legend(handles=[green_patch, red_patch])
-
+    
 plt.show()
