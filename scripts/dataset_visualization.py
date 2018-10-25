@@ -4,47 +4,49 @@ from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import matplotlib.patches as mpatches
 
-def diff(row_1,row_2):
+def diff(i):
     """
-    Calculates the differences between box-scores from the csv as 
-    home score - away score.
+    Returns difference between row i and row i+1.
     """
-    if row_1['home'] == 1:
-        home = row_1
-        away = row_2
+    first_row = df.iloc[i]
+    second_row = df.iloc[i+1]
+
+    if first_row['home']:
+        home = first_row
+        away = second_row
     
     else:
-        home = row_2
-        away = row_1
-    
+        home = second_row
+        away = first_row
+
     return home-away
 
 # Load data into pandas dataframe.
 df = pd.read_csv('clean_dataset.csv')
 
 # Selecting which parameters (x, y, z), columns in the data set, to plot together.
-parameters_to_plot = [(4, 8, 9), (0, 1, 2), (3, 6, 7), (5, 10, 11)] 
+scores_to_plot = [('dreb', 'blk', 'to'), ('fg', '3pt', 'ft'), ('oreb', 'ast', 'stl'), ('reb', 'pf', 'pts')] 
 
 # Corresponding axis labels. 
-xlabels = ['Defensive rebound difference', 'Field goal difference', 'Offensive rebound difference', 'Total rebound difference']
-ylabels = ['Block difference', '3pt difference', 'Assist difference', 'Personal foul difference']
-zlabels = ['Turnover difference', 'Freethrow difference', 'Steal difference', 'Total point difference']
+axis_labels = {'dreb':'Defensive rebound', 'fg':'Field goal', 'oreb':'Offensive rebound', 'reb':'Total rebound',
+                'blk':'Block', '3pt':'3 pointer', 'ast':'Assist', 'pf':'Personal foul', 'to':'Turnover', 'ft':'Freethrow', 
+                'stl':'Steal', 'pts':'Total point'}
 
 # Iterate over the selected parameters to plot. 
-for p, parameters in enumerate(parameters_to_plot):
+for p, parameters in enumerate(scores_to_plot):
 
     # Initialize plot. 
     fig = plt.figure(p)
     ax = fig.add_subplot(111, projection='3d')
     
-    # Iterate over data set plot selected parameters of each game.
+    # Iterate over data set and plot selected parameters.
     for i in range(0, df.shape[0], 2):
 
-        # Calculate difference between box scores in consecutive rows. 
-        game_result = diff(df.ix[i],df.ix[i+1]) 
+        # Calculate difference between box scores in consecutive rows.
+        game_result = diff(i) 
 
-        # Set color of data point to green if home team won, else red. 
-        if game_result[-2] > 0:
+        # Set color of data point to green if home team won, else red.
+        if game_result['pts'] > 0:
             c = 'green' 
         else:
             c = 'red'
@@ -56,13 +58,13 @@ for p, parameters in enumerate(parameters_to_plot):
         y = game_result[z_column]
         z = game_result[y_column]
 
-        # Plot data point.
+        # Plot data point (each point represents selected parameters for a single game).
         ax.scatter(x, y, z, c=c)
     
     # Format plot.
-    ax.set_xlabel(xlabels[p])
-    ax.set_ylabel(ylabels[p])
-    ax.set_zlabel(zlabels[p])
+    ax.set_xlabel(axis_labels[x_column] + ' difference')
+    ax.set_ylabel(axis_labels[y_column] + ' difference')
+    ax.set_zlabel(axis_labels[z_column] + ' difference')
 
     green_patch = mpatches.Patch(color='green', label='Home team won')
     red_patch = mpatches.Patch(color='red', label='Home team lost')
