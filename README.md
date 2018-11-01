@@ -1,9 +1,9 @@
 # NBA-predictor
-A feedforward neural network for predicting the outcomes of NBA games given current season average box scores for each team. The network is implemented using keras with tensorflow as the backend with gpu-support. For an introduction to neural networks, see chapter 3 of [Neural Networks](http://www.dkriesel.com/_media/science/neuronalenetze-en-zeta2-2col-dkrieselcom.pdf). For relevant research, see [Predicting NBA Games Using Neural
+A feedforward neural network for predicting the outcomes of NBA games given current season average box scores for each team. The network is implemented using keras with tensorflow as the backend with GPU support. For an introduction to neural networks, see chapter 3 of [Neural Networks](http://www.dkriesel.com/_media/science/neuronalenetze-en-zeta2-2col-dkrieselcom.pdf). For relevant research, see [Predicting NBA Games Using Neural
 Networks](http://sci-hub.tw/https://www.degruyter.com/view/j/jqas.2009.5.1/jqas.2009.5.1.1156/jqas.2009.5.1.1156.xml?format=INT&intcmp=trendmd).
 
 ## Data set
-Statistics were collected for 1230 games in the 2017-18 season. The network is trained with data from the first 620 games of the season and evaluated with the following 30 games. Current season averages are used as features for the prediction of unplayed games.
+Statistics were collected for 1230 games in the 2017-18 season. The network is trained with data from the first 620 games of the season and validated with the following 30 games. Current season averages are used as features for the prediction of unplayed games.
 
 ## Network
 
