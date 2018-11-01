@@ -8,10 +8,11 @@ Statistics were collected for 1230 games in the 2017-18 season. The network is t
 ## Network
 
 ## Prerequisites
-If you want to train the classifier you will need to install CUDA, cudnn and tensorflow. This can be quite a hassle on Windows, so follow the guide below ([source](https://www.pugetsystems.com/labs/hpc/The-Best-Way-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-1187/)). Note that a NVIDIA GPU card with [https://developer.nvidia.com/cuda-gpus](compute capability) 3.5 or higher is required.
+If you want to train the classifier you will need to install CUDA, cudnn and tensorflow. This can be quite a hassle on Windows, so follow the guide below ([source](https://www.pugetsystems.com/labs/hpc/The-Best-Way-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-1187/)). Note that a NVIDIA GPU card with [compute capability](https://developer.nvidia.com/cuda-gpus) 3.5 or higher is required.
 
 Download and install Anaconda:
-[Anaconda3-5.2.0-Windows-x86_64.exe](https://repo.continuum.io/archive/Anaconda3-5.2.0-Windows-x86_64.exe) 
+[Anaconda3-5.2.0-Windows-x86_64.exe](https://repo.continuum.io/archive/Anaconda3-5.2.0-Windows-x86_64.exe)
+
 Make sure that you check the boxes for "Add Anaconda to path variable" and "Register Anaconda as default python" during the installation.
 
 Open a terminal and run the following commands to update Anaconda:
