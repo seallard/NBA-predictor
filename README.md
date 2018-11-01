@@ -8,7 +8,7 @@ Statistics were collected for 1230 games in the 2017-18 season. The network is t
 ## Network
 
 ## Prerequisites
-If you want to run the classifier you will need to install CUDA, cudnn and tensorflow. This can be quite a hassle on Windows, so follow the guide below ([source](https://www.pugetsystems.com/labs/hpc/The-Best-Way-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-1187/)).
+If you want to train the classifier you will need to install CUDA, cudnn and tensorflow. This can be quite a hassle on Windows, so follow the guide below ([source](https://www.pugetsystems.com/labs/hpc/The-Best-Way-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-1187/)).
 
 Download and install Anaconda:
 [Anaconda3-5.2.0-Windows-x86_64.exe](https://repo.continuum.io/archive/Anaconda3-5.2.0-Windows-x86_64.exe) 
@@ -38,8 +38,17 @@ Install tensorflow with gpu-support in the activated environment:
 conda install -c aaronzs tensorflow-gpu
 ```
 
-Install the CUDA and cudnn packages in the activated environment:
+Install the CUDA and cuDNN packages in the activated environment:
 ```
 conda install -c anaconda cudatoolkit
 conda install -c anaconda cudnn
+```
+
+To check that your installation is functioning, run the following in the activated environment:
+```
+python
+import tensorflow as tf
+hello = tf.constant('Hello, TensorFlow!')
+sess = tf.Session()
+print(sess.run(hello))
 ```
