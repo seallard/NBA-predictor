@@ -28,8 +28,11 @@ def model_config():
     # Create model. 
     model = Sequential()
     
-    # Add hidden layer of the same dimensionality as the input layer.
+    # Add input layer.
     model.add(Dense(24, input_dim=24, kernel_initializer='normal', activation='relu'))
+
+    # Add hidden layer. 
+    model.add(Dense(24, kernel_initializer='normal', activation='sigmoid'))
 
     # Add output neuron. 
     model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
