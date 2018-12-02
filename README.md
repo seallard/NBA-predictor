@@ -1,8 +1,8 @@
 # NBA-predictor
-A feedforward neural network for predicting the outcome of NBA games given current average box scores for the competing teams. The network is implemented using Keras with TensorFlow as the backend with GPU support.
+A feedforward neural network for predicting the outcome of NBA games given current average box scores for the competing teams. The network is implemented using Keras with TensorFlow as the backend with GPU support. A validation accuracy of 73.5 % was achieved.
 
 ## Data set
-Box scores were collected for 1230 games in the 2017-18 season. The network was trained with individual data from the first 650 games and validated with the following 50 games. The validation data set consists of team averages up until the game being validated, the "unplayed" game. The following features, for the home and away team, were used from the box scores to train the network: 
+Box scores were collected for 1230 games in the 2017-18 season. The network was trained with individual data from the first 650 games and validated with the following 50 games. The validation data set consists of team averages up until the game being validated, the "unplayed" game. The following statistics from the box scores, for the home and away team, were used as features to train the network: 
 
 | Acronym | Explanation |
 | ------------- | ------------- |
