@@ -8,6 +8,12 @@ Acronym | pts | fg % | 3pt % | ft % | oreb | dreb | ast | stl | blk | to
 --- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |---
 Explanation | points | field goal % | three point % | freethrow % | offensive rebounds | defensive rebounds | assists | steals | blocks | turn overs 
 
+
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
+
 The percentages are calculated as made/attempted. Note that all data was normalized. The outcome of the games (1 if the home team won, 0 if it lost) was used as targets.
 
 ## Network
