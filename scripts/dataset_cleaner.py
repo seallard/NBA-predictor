@@ -1,3 +1,6 @@
+# This script filters the raw data set and extracts the relevant statistics to clean_dataset.csv.
+# 
+
 import csv
 
 with open("raw_dataset.csv",'r') as infile:

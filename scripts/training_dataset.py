@@ -1,7 +1,7 @@
 # This script generates the training_dataset.csv.
-# Each row consists of 12 scores for the home team and 12 scores for 
-# the away team, the outcome and the date. So the training vectors will 
-# consist of 25 elements. The games are sorted by date. 
+# Each row contains statistics for a game and they are sorted by date. Each row consists of 10 scores for the 
+# home team and 10 scores for the away team, the outcome, team names and the date. The outcome, names and date 
+# are removed in predictor.py. So the training vectors will consist of 20 elements.  
 
 import csv
 import pandas as pd
