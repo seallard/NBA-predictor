@@ -4,7 +4,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 from keras.models import Sequential
 from keras.layers import Dense, Activation
-from keras.optimizers import Adam, SGD
+from keras.optimizers import Adam
 from keras.callbacks import TensorBoard
 
 # Load training dataset.
@@ -62,3 +62,6 @@ model.fit(x=X_train_normalized, y=y_train, batch_size=30, epochs=70, verbose=1, 
 model_json = model.to_json()
 with open("model.json", "w") as f:
     f.write(model_json)
+
+# Save weights.
+model.save_weights("model.h5")
