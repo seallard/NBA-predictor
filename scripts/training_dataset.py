@@ -15,11 +15,11 @@ with open("training_dataset.csv", "w") as outfile:
     filewriter = csv.writer(outfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
     
     # Write header. 
-    filewriter.writerow(['home_team', 'away_team', 'fg_h','3pt_h','ft_h','oreb_h','dreb_h','reb_h',
-                        'ast_h','stl_h','blk_h', 'to_h','pf_h','pts_h', 'fg_a','3pt_a','ft_a','oreb_a',
-                        'dreb_a','reb_a', 'ast_a','stl_a','blk_a', 'to_a','pf_a','pts_a', 'outcome', 'date'])
+    filewriter.writerow(['home_team', 'away_team', 'pts_h', 'fg%_h','3pt%_h','ft%_h','oreb_h','dreb_h',
+                        'ast_h','stl_h','blk_h', 'to_h', 'pts_a', 'fg%_a','3pt%_a','ft%_a','oreb_a',
+                        'dreb_a', 'ast_a','stl_a','blk_a', 'to_a', 'outcome', 'date'])
     
-    # Creating training dataset csv file. 
+    # Create training dataset csv file. 
     for i, row in enumerate(data[1:]):
 
         # Even rows contain away team score, odd contain home team score.  
@@ -27,13 +27,13 @@ with open("training_dataset.csv", "w") as outfile:
             away_stats = data[i][1:-1]
             away_team = [data[i][0]]
             
-            home_stats = data[i+1][:-1]
+            home_stats = data[i+1][1:-1]
             home_team = [data[i+1][0]]
 
             date = [row[-1]]
 
             # Check outcome of game.
-            if int(home_stats[-1]) - int(away_stats[-1]) > 0:
+            if int(home_stats[0]) - int(away_stats[0]) > 0:
 
                 outcome = [1] # Home team won. 
             
