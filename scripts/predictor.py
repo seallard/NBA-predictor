@@ -20,6 +20,13 @@ X_train_normalized = scaler.fit_transform(X_train)
 # Select outcomes of 650 first games as targets.
 y_train = training_df.values[:650, -2]
 
+# Rescale training targets from 0 to 0.01 and from 1 to 0.99.
+zero_indices = y_train < 1
+one_indices = y_train > 0
+
+y_train[zero_indices] = 0.01
+y_train[one_indices] = 0.99
+
 # Load validation data set. 
 validation_df = pd.read_csv("validation_dataset.csv")
 
@@ -30,16 +37,23 @@ X_test_normalized = scaler.fit_transform(X_test)
 # Select validation targets.
 y_test = validation_df.values[:, -1]
 
+# Rescale validation targets from 0 to 0.01 and from 1 to 0.99.
+zero_indices = y_test < 1
+one_indices = y_test > 0
+
+y_test[zero_indices] = 0.01
+y_test[one_indices] = 0.99
+
 def model_config():
 
     # Create model. 
     model = Sequential()
     
     # Add input layer.
-    model.add(Dense(units=20, input_dim=20, activation='relu'))
+    model.add(Dense(units=20, input_dim=20, activation='sigmoid'))
 
     # Add fully connected hidden layer. 
-    model.add(Dense(units=12, activation='relu'))
+    model.add(Dense(units=12, activation='sigmoid'))
     
     # Add output neuron. 
     model.add(Dense(units=1, activation='sigmoid'))
