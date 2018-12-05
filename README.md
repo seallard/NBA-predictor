@@ -23,7 +23,7 @@ The percentages are calculated as made/attempted. Note that all data was normali
 ## Network
 The network consists of three dense layers, i.e. fully connected. The input layer consists of 20 nodes, 10 for the home team and 10 for the away team statistics. The hidden layer consists of 12 nodes and the output is a single node. Binary crossentropy was chosen as the loss function and Adam as the optimizer. All layers use a sigmoid activation function. The network was trained over 30 epochs with a batch size of 20.
 
-![Validation accuracy](https://raw.githubusercontent.com/seallard/NBA-predictor/blob/master/graphs/validation_accuracy_20_runs.PNG)
+![Validation accuracy](https://raw.githubusercontent.com/seallard/NBA-predictor/master/graphs/validation_accuracy_20_runs.PNG)
 
 ## Prerequisites
 If you want to train the classifier you will need to install CUDA, cuDNN, TensorFlow and Keras. This can be quite a hassle on Windows, so follow the guide below ([source](https://www.pugetsystems.com/labs/hpc/The-Best-Way-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-1187/)). Note that a NVIDIA GPU card with [compute capability](https://developer.nvidia.com/cuda-gpus) 3.5 or higher is required.
