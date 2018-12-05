@@ -13,7 +13,7 @@ def team_average(team_name, game_number):
     Returns a list of average statistics for team.
     """
 
-    # Get games up until game_number.
+    # Get games up until game_number (exclusive).
     validation_df = df[:game_number]
 
     # Find all games played at home by team and select their stats. 
@@ -35,8 +35,13 @@ with open("validation_dataset.csv", "w", newline='') as outfile:
     
     filewriter = csv.writer(outfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
 
+    # Write header
+    filewriter.writerow(['pts_h', 'fg%_h','3pt%_h','ft%_h','oreb_h','dreb_h',
+                        'ast_h','stl_h','blk_h', 'to_h', 'pts_a', 'fg%_a','3pt%_a','ft%_a','oreb_a',
+                        'dreb_a', 'ast_a','stl_a','blk_a', 'to_a', 'outcome'])
+
     # Iterate over validation games 651-701.
-    for i in range(651, 701):
+    for i in range(651, 702):
 
         validation_game = df[i:i+1]
 
