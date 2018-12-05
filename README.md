@@ -1,5 +1,5 @@
 # NBA-predictor
-A feedforward neural network for predicting the outcome of NBA games given current average box scores for the competing teams. The network is implemented using Keras with TensorFlow as the backend with GPU support. A validation accuracy of 73.5 % was achieved, similar to what was reported in [Predicting NBA Games Using Neural
+A feedforward neural network for predicting the outcome of NBA games given current average box scores for the competing teams. The network is implemented using Keras with TensorFlow as the backend with GPU support. An average validation accuracy of 72 % was achieved, similar to what was reported in [Predicting NBA Games Using Neural
 Networks, Loeffelholz et al. (2009)](http://sci-hub.tw/https://www.degruyter.com/view/j/jqas.2009.5.1/jqas.2009.5.1.1156/jqas.2009.5.1.1156.xml?format=INT&intcmp=trendmd).
 
 ## Data set
@@ -21,9 +21,9 @@ Box scores were collected for 1230 games in the 2017-18 season. The network was 
 The percentages are calculated as made/attempted. Note that all data was normalized. The outcome of the games (1 if the home team won, 0 if it lost) was used as targets.
 
 ## Network
-The network consists of three dense layers, i.e. fully connected. The input layer consists of 20 nodes, 10 for the home team and 10 for the away team statistics. The hidden layer consists of 12 nodes and the output is a single node. Binary crossentropy was chosen as the loss function and Adam as the optimizer. The input and hidden layer use relu-activation and the output use a sigmoid function. 
+The network consists of three dense layers, i.e. fully connected. The input layer consists of 20 nodes, 10 for the home team and 10 for the away team statistics. The hidden layer consists of 12 nodes and the output is a single node. Binary crossentropy was chosen as the loss function and Adam as the optimizer. All layers use a sigmoid activation function. The network was trained over 30 epochs with a batch size of 20.
 
-![Validation accuracy](https://raw.githubusercontent.com/seallard/NBA-predictor/master/graphs/validation_accuracy_1543762590.8670497.PNG)
+![Validation accuracy](https://raw.githubusercontent.com/seallard/NBA-predictor/blob/master/graphs/validation_accuracy_20_runs.PNG)
 
 ## Prerequisites
 If you want to train the classifier you will need to install CUDA, cuDNN, TensorFlow and Keras. This can be quite a hassle on Windows, so follow the guide below ([source](https://www.pugetsystems.com/labs/hpc/The-Best-Way-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-1187/)). Note that a NVIDIA GPU card with [compute capability](https://developer.nvidia.com/cuda-gpus) 3.5 or higher is required.
