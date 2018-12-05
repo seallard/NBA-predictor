@@ -49,14 +49,16 @@ def model_config():
 
     return model
 
-# Create tensorboard log.
-tensorboard = TensorBoard(log_dir="logs/{}".format(time()))
+# Repeat training.
+for i in range(20):
 
-# Train model.
-model = model_config()
+    # Create tensorboard log.
+    tensorboard = TensorBoard(log_dir="logs/{}".format(i))
 
-model.fit(x=X_train_normalized, y=y_train, batch_size=30, epochs=70, verbose=1, callbacks = [tensorboard], 
-          validation_data=(X_test_normalized,y_test), shuffle=False)
+    # Train model.
+    model = model_config()
+    model.fit(x=X_train_normalized, y=y_train, batch_size=20, epochs=30, verbose=1, callbacks = [tensorboard], 
+                validation_data=(X_test_normalized,y_test), shuffle=False)
 
 # Save model. 
 model_json = model.to_json()
