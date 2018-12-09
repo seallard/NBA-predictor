@@ -27,35 +27,38 @@ def team_average(team_name, game_number):
 
     return averages
 
-# Load training data set.
-df = pd.read_csv("training_dataset.csv")
-
-# Collect average statistics of teams in the validation games and write to csv. 
-with open("validation_dataset.csv", "w", newline='') as outfile:
+# Create validation data only if script is run by itself.
+if __name__ == "__main__":
     
-    filewriter = csv.writer(outfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-
-    # Write header
-    filewriter.writerow(['pts_h', 'fg%_h','3pt%_h','ft%_h','oreb_h','dreb_h',
-                        'ast_h','stl_h','blk_h', 'to_h', 'pts_a', 'fg%_a','3pt%_a','ft%_a','oreb_a',
-                        'dreb_a', 'ast_a','stl_a','blk_a', 'to_a', 'outcome'])
-
-    # Iterate over validation games 651-701.
-    for i in range(651, 702):
-
-        validation_game = df[i:i+1]
-
-        home_team_name = validation_game['home_team'].tolist()[0]
-        
-        away_team_name = validation_game['away_team'].tolist()[0]
-        
-        outcome = validation_game['outcome'].tolist()[0]
-        
-        # Calculate team averages up until current game. 
-        home_team_averages = team_average(home_team_name, i+1)
-        away_team_averages = team_average(away_team_name, i)
+    # Load training data set.
+    df = pd.read_csv("training_dataset.csv")
     
-        validation_vector = home_team_averages + away_team_averages + [outcome]
+    # Collect average statistics of teams in the validation games and write to csv. 
+    with open("validation_dataset.csv", "w", newline='') as outfile:
+    
+        filewriter = csv.writer(outfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+
+        # Write header
+        filewriter.writerow(['pts_h', 'fg%_h','3pt%_h','ft%_h','oreb_h','dreb_h',
+                            'ast_h','stl_h','blk_h', 'to_h', 'pts_a', 'fg%_a','3pt%_a','ft%_a','oreb_a',
+                            'dreb_a', 'ast_a','stl_a','blk_a', 'to_a', 'outcome'])
+
+        # Iterate over validation games 651-701.
+        for i in range(651, 702):
+
+            validation_game = df[i:i+1]
+
+            home_team_name = validation_game['home_team'].tolist()[0]
+            
+            away_team_name = validation_game['away_team'].tolist()[0]
+            
+            outcome = validation_game['outcome'].tolist()[0]
+            
+            # Calculate team averages up until current game. 
+            home_team_averages = team_average(home_team_name, i)
+            away_team_averages = team_average(away_team_name, i)
         
-        # Write to statistics to csv.
-        filewriter.writerow(validation_vector)
+            validation_vector = home_team_averages + away_team_averages + [outcome]
+            
+            # Write to statistics to csv.
+            filewriter.writerow(validation_vector)
