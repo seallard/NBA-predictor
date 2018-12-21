@@ -3,74 +3,96 @@ from bs4 import BeautifulSoup
 import csv
 from datetime import datetime
 
+s = requests.session()
+
 def soupify(url):
     "Takes url and returns document."
-    r = requests.get(url)
+    r = s.get(url)
     soup = BeautifulSoup(r.text,"html5lib") 
     return soup
 
-#Collect team name abbreviations.
-soup = soupify('http://www.espn.com/nba/teams')
-teams = []
+# Team name abbreviations.
+team_tags = ['ATL', 'BKN', 'BOS', 'CHA', 'CHI', 'CLE', 'DAL', 'DEN', 'DET'	, 'GSW', 'HOU', 'IND', 'LAC', 'LAL', 'MEM', 
+             'MIA', 'MIL', 'MIN', 'NO', 'NYK', 'OKC', 'ORL', 'PHI', 'PHX', 'POR', 'SAC', 'SAS', 'TOR', 'UTAH', 'WSH']
 
-for ul_tag in soup.find_all('ul', {'class': 'medium-logos'}):
-    for li_tag in ul_tag.find_all('li'):
-        teams.append(li_tag.a.get('href').split('/')[7]) #Extract abbreviations.
-
-#Collect all game id:s and dates for each team. 
+# Collect game id:s and dates for each team and game. 
 game_ids = []
 dates = []
 
-for name in teams:
-    soup = soupify('http://www.espn.com/nba/team/schedule/_/name/' + name + '/seasontype/2')
+for name in team_tags:
+    print(name)
+    soup = soupify('http://www.espn.com/nba/team/schedule/_/name/' + name + '/season/2019/seasontype/2')
+    
+    # Find table containing games. 
+    table = soup.findChildren('table')[0]
 
-    #Collecting dates.
-    data = soup.find_all('div',{'class':'mod-content'})
-
-    for date in data[0].find_all('td'):
-        if ',' in date.text: #Only date td contain ','.
-            if any(m in date.text for m in ['Oct','Nov','Dec']):
-                year = '2017'
-            else:
-                year = '2018'
+    for span in table.find_all("span", {"class": "ml4"}):
+        links = span.find_all('a')
+        
+        for link in links:
+            game_id = link['href'].split('=')[-1]
             
-            formatted_date = datetime.strptime(year + date.text.split(',')[-1],'%Y %b %d').date() #Convert date string to date object. 
-            dates.append(formatted_date)
+            if game_id not in game_ids:
+                game_ids.append(game_id)
 
-    #Collecting id:s.
-    for ul_tag in soup.find_all('ul', {'class': 'game-schedule'}):
-        for li_tag in ul_tag.find_all('li',{'class': 'score'}):
-            game = li_tag.a.get('href')[30:39] #Extract id number.
+    # Iterate over table rows. 
+    for row in  table.findChildren('tr'):
+        for data in row.findChildren('td'):
+            
+            if ',' in data.text and 'tickets' not in data.text:
 
-            if game not in game_ids: #Avoid duplicates.
-                game_ids.append(game)
+                if any(m in data.text for m in ['Oct','Nov','Dec']):
+                    year = '2018'
 
-#Collect box scores and team names for each collected game id and write to csv.
-with open('NBA_game_stats.csv','w',newline='') as csvfile:
+                else:
+                    year = '2019'
+                
+                # Convert date string to date object.
+                formatted_date = datetime.strptime(year + data.text.split(',')[-1],'%Y %b %d').date()
+
+                # Save if game has been played.
+                if formatted_date < datetime.now().date():
+                    dates.append(formatted_date)
+print(len(game_ids))
+# Collect box scores and team names for each collected game id and write to csv.
+with open('NBA_game_stats.csv','w', newline='') as csvfile:
+
     filewriter = csv.writer(csvfile, delimiter=',',quotechar='|',quoting=csv.QUOTE_MINIMAL)
     filewriter.writerow(['fg','3pt','ft','oreb','dreb','reb','ast','stl','blk','to','pf','pts','id','team','home','date'])
     
-    for i,game in enumerate(game_ids):
+    # Iterate over game id:s and collect game statistics.
+    for i, game in enumerate(game_ids):
         soup = soupify('http://www.espn.com/nba/boxscore?gameId=' + game)
         
-        #Collecting team names and home/away status for current game.
+        # Collect team names and home/away status for current game.
         teams = []
-        for div in soup.find_all('div',{'class': 'team away'}):
-            teams.append((div.find('span',{'class': 'short-name'}).text,0)) #Save tuple (name,away=0)
+        for div in soup.find_all('div', class_='team away'):
+
+            # Save team and home or away status in tuple (name, away=0)
+            teams.append((div.find('span', class_='short-name').text, 0)) 
         
-        for div in soup.find_all('div',{'class': 'team home'}):
-            teams.append((div.find('span',{'class': 'short-name'}).text,1)) #Save tuple (name,home=1)
+        for div in soup.find_all('div', class_='team home'):
+            
+             # Save team and home or away status in tuple (name, home=1)
+            teams.append((div.find('span', class_='short-name').text, 1))
 
-        #Collecting box scores for current game.
-        data = soup.find_all('tr',{'class': 'highlight'})
-        highlights = [data[0],data[2]] #Extract relevant highlights.
+        # Collect box scores for current game.
+        data = soup.find_all('tr', class_='highlight')
 
-        for k,scores in enumerate(highlights):
-            team_data = []
+        # Game id:s for unplayed games have been collected. Check that data exist for current game.
+        if len(data) > 2:
 
-            for td_tag in scores.find_all('td'):
-                if len(td_tag.text) > 0: #Ignore empty fields.
-                    team_data.append(td_tag.text)
-        
-            team_data.extend((game,teams[k][0],teams[k][1],dates[i]))
-            filewriter.writerow(team_data[1:])
+            # Extract relevant highlights.
+            highlights = [data[0], data[2]]
+            
+            for k, scores in enumerate(highlights):
+                team_data = []
+
+                for td_tag in scores.find_all('td'):
+                    
+                    # Ignore empty fields.
+                    if len(td_tag.text) > 0: 
+                        team_data.append(td_tag.text)
+
+                team_data.extend((game, teams[k][0],teams[k][1], dates[i]))
+                filewriter.writerow(team_data[1:])
