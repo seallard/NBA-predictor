@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import csv
 
-def team_average(team_name, game_number):
+def team_average(team_name, game_number, df):
     """ 
     Calculates average performance of a team up until a certain game.
     Requires a team_name (string) and a game_number (int).
@@ -29,7 +29,7 @@ def team_average(team_name, game_number):
 
 # Create validation data only if script is run by itself.
 if __name__ == "__main__":
-    
+
     # Load training data set.
     df = pd.read_csv("training_dataset.csv")
     
@@ -55,8 +55,8 @@ if __name__ == "__main__":
             outcome = validation_game['outcome'].tolist()[0]
             
             # Calculate team averages up until current game. 
-            home_team_averages = team_average(home_team_name, i)
-            away_team_averages = team_average(away_team_name, i)
+            home_team_averages = team_average(home_team_name, i, df)
+            away_team_averages = team_average(away_team_name, i, df)
         
             validation_vector = home_team_averages + away_team_averages + [outcome]
             
