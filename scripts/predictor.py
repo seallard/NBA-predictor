@@ -59,11 +59,6 @@ for i in range(20):
     model = model_config()
     model.fit(x=X_train_normalized, y=y_train, batch_size=20, epochs=30, verbose=1, callbacks = [tensorboard], 
                 validation_data=(X_test_normalized,y_test), shuffle=False)
-
-# Save model. 
-model_json = model.to_json()
-with open("model.json", "w") as f:
-    f.write(model_json)
-
-# Save weights.
-model.save_weights("model.h5")
+    
+    # Save trained model.
+    model.save("../trained_network/net_{}".format(i))
