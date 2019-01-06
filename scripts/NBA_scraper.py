@@ -11,7 +11,6 @@ def soupify(url):
     soup = BeautifulSoup(r.text,"html5lib") 
     return soup
 
-# Team name abbreviations.
 team_tags = ['ATL', 'BKN', 'BOS', 'CHA', 'CHI', 'CLE', 'DAL', 'DEN', 'DET'	, 'GSW', 'HOU', 'IND', 'LAC', 'LAL', 'MEM', 
              'MIA', 'MIL', 'MIN', 'NO', 'NYK', 'OKC', 'ORL', 'PHI', 'PHX', 'POR', 'SAC', 'SAS', 'TOR', 'UTAH', 'WSH']
 
@@ -53,9 +52,9 @@ for name in team_tags:
                 # Save if game has been played.
                 if formatted_date < datetime.now().date():
                     dates.append(formatted_date)
-print(len(game_ids))
+                       
 # Collect box scores and team names for each collected game id and write to csv.
-with open('NBA_game_stats.csv','w', newline='') as csvfile:
+with open('raw_dataset.csv','w', newline='') as csvfile:
 
     filewriter = csv.writer(csvfile, delimiter=',',quotechar='|',quoting=csv.QUOTE_MINIMAL)
     filewriter.writerow(['fg','3pt','ft','oreb','dreb','reb','ast','stl','blk','to','pf','pts','id','team','home','date'])
@@ -79,7 +78,7 @@ with open('NBA_game_stats.csv','w', newline='') as csvfile:
         # Collect box scores for current game.
         data = soup.find_all('tr', class_='highlight')
 
-        # Game id:s for unplayed games have been collected. Check that data exist for current game.
+        # Select correct tables. 
         if len(data) > 2:
 
             # Extract relevant highlights.

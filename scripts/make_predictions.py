@@ -14,8 +14,12 @@ model = load_model("net_1")
 df = pd.read_csv("training_dataset.csv")
 
 # Games to be predicted as tuples of (home, away). 
-games = [('Cavaliers', 'Celtics')]
-odds = [(1.80, 2.05)]
+games = [('Bulls', 'Nets'), ('Timberwolves', 'Lakers'), ('Clippers', 'Magic'), ('Hawks','Heat'),('Thunder','Wizards'),
+         ('Raptors','Pacers'),('Suns','Hornets')]
+
+odds = [(2.15, 1.74),(1.40, 3.05),(1.35,3.30), (3.05, 1.40),(1.16,5.50),(1.55,2.60),(2.10,1.76)]
+
+print("------------------")
 
 # Make prediction for each game.
 for i, game in enumerate(games):
@@ -28,23 +32,21 @@ for i, game in enumerate(games):
 
     # Make prediction.
     prediction = model.predict(game)[0][0]
-    print("Network gives a probability of {} that {} wins.".format(prediction, home_team))
-    print("Network gives a probability of {} that {} wins.".format(1-prediction, away_team))
     
     # Bookmakers odds. 
     home_odds, away_odds = odds[i]
 
     # Calculate bookmakers implied probabilities. 
     bookmakers_fee = 1.041
-    home_implied_probability = 1/(home_odds*bookmakers_fee)
-    away_implied_probability = 1/(away_odds*bookmakers_fee)
+    home_implied_probability = round(1/(home_odds*bookmakers_fee),3)
+    away_implied_probability = round(1/(away_odds*bookmakers_fee),3)
 
-    print("Bookmaker is {} sure that {} will win.".format(home_implied_probability, home_team))
-    print("Bookmaker is {} sure that {} will win.".format(away_implied_probability, away_team))
+    # Check if the networks expectations are larger than the bookmakers by 0.10 for home team.
+    print("Implied probability: {} that {} wins. Odds: {}".format(home_implied_probability, home_team, home_odds))
+    print("Prediction: {} that {} wins.".format(prediction, home_team))
 
-    # Check if the networks expectations are larger than the bookmakers by 0.10.
-    if prediction > home_implied_probability + 0.1:
-        print("{} might be undervalued, the difference is {}.".format(home_team, prediction - home_implied_probability))
-
-    if 1-prediction > away_implied_probability + 0.1:
-        print("{} might be undervalued, the difference is {}.".format(away_team, prediction - away_implied_probability))
+    # Check if the networks expectations are larger than the bookmakers by 0.10 for away team.
+    print("Implied probability: {} that {} will win. Odds: {}".format(away_implied_probability, away_team, away_odds))
+    print("Network gives a probability of {} that {} wins.".format(1-prediction, away_team))
+    
+    print("------------------")
