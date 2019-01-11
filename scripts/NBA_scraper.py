@@ -3,19 +3,23 @@ from bs4 import BeautifulSoup
 import csv
 import time
 import pandas as pd
+from datetime import datetime
 
 # Load game id:s scraped previously (to reduce number of requests).
 try:
-    df = pd.read_csv("raw_dataset.csv")
-    ids = df['id'].tolist()
+    df = pd.read_csv("../data sets/2018_19_dataset.csv", error_bad_lines=False)
+    previous_ids = set(df['id'].tolist())
+    previous = True
     
 except FileNotFoundError:
-    ids = []
+    previous_ids = []
+    previous = False
 
 def soupify(url):
     "Takes url and returns document."
     r = s.get(url)
     soup = BeautifulSoup(r.text,"html5lib") 
+    time.sleep(1)
     return soup
 
 team_tags = ['ATL', 'BKN', 'BOS', 'CHA', 'CHI', 'CLE', 'DAL', 'DEN', 'DET'	, 'GSW', 'HOU', 'IND', 'LAC', 'LAL', 'MEM', 
@@ -23,12 +27,11 @@ team_tags = ['ATL', 'BKN', 'BOS', 'CHA', 'CHI', 'CLE', 'DAL', 'DEN', 'DET'	, 'GS
 
 s = requests.session()
 
-# Collect game id:s for each game. 
+# Collect game id:s for each team. 
 game_ids = []
 
 for name in team_tags:
     print(name)
-    time.sleep(1)
     soup = soupify('http://www.espn.com/nba/team/schedule/_/name/' + name + '/season/2019/seasontype/2')
     
     table = soup.findChildren('table')[0]
@@ -39,19 +42,25 @@ for name in team_tags:
         for link in links:
             game_id = link['href'].split('=')[-1]
             
-            if game_id not in ids and game_id not in game_ids:
+            if game_id not in game_ids and int(game_id) not in previous_ids:
                 game_ids.append(game_id)
                        
 # Collect box scores and team names for each collected game id and write to csv.
-with open('raw_dataset.csv','w', newline='') as csvfile:
+with open("../data sets/2018_19_dataset.csv", 'a', newline='') as f:
+    filewriter = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
 
-    filewriter = csv.writer(csvfile, delimiter=',',quotechar='|',quoting=csv.QUOTE_MINIMAL)
-    filewriter.writerow(['fg','3pt','ft','oreb','dreb','reb','ast','stl','blk','to','pf','pts','id','team','home'])
-    
+    if not previous:
+        filewriter.writerow(['fg','3pt','ft','oreb','dreb','reb','ast','stl','blk','to','pf','pts','id','team','home','date'])
+
     for i, game in enumerate(game_ids):
-        time.sleep(1)
+        print(game)
+
         soup = soupify('http://www.espn.com/nba/boxscore?gameId=' + game)
         
+        # Get date for game. 
+        date_string = soup.title.string.split('-')[-2].replace(",","").strip()
+        formatted_date = datetime.strptime(date_string,'%B %d %Y').date()
+
         # Collect team names and home/away status for current game.
         teams = []
         for div in soup.find_all('div', class_='team away'):
@@ -82,5 +91,5 @@ with open('raw_dataset.csv','w', newline='') as csvfile:
                     if len(td_tag.text) > 0: 
                         team_data.append(td_tag.text)
 
-                team_data.extend((game, teams[k][0],teams[k][1]))
+                team_data.extend((game, teams[k][0],teams[k][1],formatted_date))
                 filewriter.writerow(team_data[1:])
