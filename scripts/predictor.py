@@ -8,7 +8,7 @@ from keras.optimizers import Adam
 from keras.callbacks import TensorBoard
 
 # Load training dataset.
-training_df = pd.read_csv("training_dataset.csv")
+training_df = pd.read_csv("../data sets/training_dataset.csv")
 
 # Select 650 first games, columns 2:-2 as patterns.
 X_train = training_df.values[:650, 2:-2]
@@ -21,7 +21,7 @@ X_train_normalized = scaler.fit_transform(X_train)
 y_train = training_df.values[:650, -2]
 
 # Load validation data set. 
-validation_df = pd.read_csv("validation_dataset.csv")
+validation_df = pd.read_csv("../data sets/validation_dataset.csv")
 
 # Select validation inputs and normalize.
 X_test = validation_df.values[:, 0:-1]
