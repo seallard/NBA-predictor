@@ -8,7 +8,7 @@ from keras.models import load_model
 from validation_dataset import team_average
 
 # Load trained network. 
-model = load_model("net_1")
+model = load_model("../trained network/net_1")
 
 # Load data set to calculate season averages below.
 df = pd.read_csv("prediction_dataset.csv")
