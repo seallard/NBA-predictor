@@ -21,12 +21,27 @@ Box scores were collected for 1230 games in the 2017-18 season. The network was 
 The percentages are calculated as made/attempted. Note that all data was normalized. The outcome of the games (1 if the home team won, 0 if it lost) was used as targets.
 
 ## Network
-The network consists of three dense layers, i.e. fully connected. The input layer consists of 20 nodes, 10 for the home team and 10 for the away team statistics. The hidden layer consists of 12 nodes and the output is a single node. Binary crossentropy was chosen as the loss function and Adam as the optimizer. All layers use a sigmoid activation function. The network was trained over 30 epochs with a batch size of 20.
+The network consists of three fully connected layers (20, 12, 1). The input layer consists of 20 nodes, 10 for the home team and 10 for the away team statistics. The hidden layer consists of 12 nodes and the output is a single node. Binary crossentropy was chosen as the loss function and Adam as the optimizer. All layers use a sigmoid activation function. The network was trained over 30 epochs with a batch size of 20.
 
 ![Validation accuracy](https://raw.githubusercontent.com/seallard/NBA-predictor/master/graphs/validation_accuracy_20_runs.PNG)
 
+## Results 2019
+To see the accuracy over time and predictions made for the 2019 season with the trained model (net_1), visit this [spreadsheet](https://docs.google.com/spreadsheets/d/1JHCUvGb0eJoLNHFiahcgNU_1DlFqxn-eiWDytXJX-8M/edit?usp=sharing). 
+
 ## Prerequisites
-If you want to train the classifier you will need to install CUDA, cuDNN, TensorFlow and Keras. This can be quite a hassle on Windows, so follow the guide below ([source](https://www.pugetsystems.com/labs/hpc/The-Best-Way-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-1187/)). Note that a NVIDIA GPU card with [compute capability](https://developer.nvidia.com/cuda-gpus) 3.5 or higher is required.
+* Tensorflow 1.10.0
+* Keras 2.2.4
+* Numpy 1.14.5
+* Pandas 0.23.4
+* Beautifulsoup 4.6.3
+* sklearn 0.20.1
+
+To make new predictions using the trained netork (net_1):
+1. Run NBA_scraper.py to collect the latest box scores from espn.com. 
+2. Run prediction_dataset.py to generate the data set required to make new predictions.
+3. Enter the match ups and odds in make_predictions.py and run it. 
+
+If you want to train the classifier yourself, you will need to install CUDA, cuDNN, TensorFlow and Keras. This can be quite a hassle on Windows, so follow the guide below ([source](https://www.pugetsystems.com/labs/hpc/The-Best-Way-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-1187/)). Note that a NVIDIA GPU card with [compute capability](https://developer.nvidia.com/cuda-gpus) 3.5 or higher is required.
 
 Download and install Anaconda:
 [Anaconda3-5.2.0-Windows-x86_64.exe](https://repo.continuum.io/archive/Anaconda3-5.2.0-Windows-x86_64.exe)
