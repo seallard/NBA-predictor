@@ -9,6 +9,7 @@ from keras.models import load_model
 from validation_dataset import team_average
 
 from datetime import date
+from datetime import timedelta
 
 # Load trained network. 
 model = load_model("../trained network/net_1")
@@ -46,14 +47,22 @@ with open("../data sets/make_prediction.csv", "w+", newline='') as outfile:
         home_implied_probability = round(1/(home_odds*bookmakers_fee),3)
         away_implied_probability = round(1/(away_odds*bookmakers_fee),3)
 
+        # Difference of implied probability and networks probability
+        prob_dif = prediction - home_implied_probability 
+        
         #Prints to terminal
-        print("Implied probability: {} that {} wins. Odds: {}".format(home_implied_probability, home_team, home_odds))
-        print("Prediction: {} that {} wins.".format(prediction, home_team))
+        print("Implied probability: {:.3f}% that {} wins. Odds: {}".format(home_implied_probability*100, home_team, home_odds))
+        print("Prediction: {:.3f}% that {} wins.".format(prediction*100, home_team))
 
-        print("Implied probability: {} that {} will win. Odds: {}".format(away_implied_probability, away_team, away_odds))
-        print("Network gives a probability of {} that {} wins.".format(1-prediction, away_team))
-    
+        print("Implied probability: {:.3f}% that {} will win. Odds: {}".format(away_implied_probability*100, away_team, away_odds))
+        print("Network gives a probability of {:.3f}% that {} wins.".format((1-prediction)*100, away_team))
+
+        print("Network and implied probability differs with {:.3f}%,".format(abs(prob_dif)*100), end = ' ')
+        if prob_dif > 0:
+            print("in favor of {}".format(home_team))
+        else:
+            print("in favor of {}".format(away_team))
         print("------------------")
 
         #Prints to file
-        filewriter.writerow([home_team, away_team, str(date.today()), home_odds, away_odds, round(prediction, 3)]) 
+        filewriter.writerow([home_team, away_team, str(date.today() + timedelta(days=1)), home_odds, away_odds, round(prediction, 3)]) 
