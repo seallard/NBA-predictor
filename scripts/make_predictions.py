@@ -14,13 +14,13 @@ from datetime import date
 model = load_model("../trained network/net_1")
 
 # Load data set to calculate season averages below.
-df = pd.read_csv("prediction_dataset.csv")
+df = pd.read_csv("../data sets/prediction_dataset.csv")
 
 # Games to be predicted as tuples of (home, away). 
-games = [('76ers', 'Hawks'), ('Wizards', 'Bucks'),('Raptors', 'Nets'), ('Knicks','Pacers'), ('Rockets', 'Cavaliers'), ('Timberwolves', 'Mavericks'), ('Trail Blazers', 'Hornets'), ('Jazz', 'Lakers'), ('Warriors', 'Bulls')]
+games = [('Wizards', 'Knicks'), ('Pacers', '76ers'),('Hornets', 'Kings'), ('Raptors','Suns'), ('Nuggets', 'Bulls'), ('Thunder', 'Lakers')]
 
 # Bookmakers odds (home, away).
-odds = [(1.10, 7.25),(2.95, 1.42),(1.20,4.75),(4.20, 1.25),(1.076, 9.00),(1.52, 2.67),(1.40, 3.05),(1.28, 3.75),(1.058, 11.00)]
+odds = [(1.33, 3.40),(1.66, 2.30),(1.64, 2.35),(1.090, 8.00),(1.090, 8.00),(1.18, 5.25)]
 
 print("------------------")
 
