@@ -9,18 +9,19 @@ from keras.models import load_model
 from validation_dataset import team_average
 
 from datetime import date
+from datetime import timedelta
 
 # Load trained network. 
 model = load_model("../trained network/net_1")
 
 # Load data set to calculate season averages below.
-df = pd.read_csv("prediction_dataset.csv")
+df = pd.read_csv("../data sets/prediction_dataset.csv")
 
 # Games to be predicted as tuples of (home, away). 
-games = [('76ers', 'Hawks'), ('Wizards', 'Bucks'),('Raptors', 'Nets'), ('Knicks','Pacers'), ('Rockets', 'Cavaliers'), ('Timberwolves', 'Mavericks'), ('Trail Blazers', 'Hornets'), ('Jazz', 'Lakers'), ('Warriors', 'Bulls')]
+games = [('Wizards', 'Knicks'), ('Pacers', '76ers'),('Hornets', 'Kings'), ('Raptors','Suns'), ('Nuggets', 'Bulls'), ('Thunder', 'Lakers')]
 
 # Bookmakers odds (home, away).
-odds = [(1.10, 7.25),(2.95, 1.42),(1.20,4.75),(4.20, 1.25),(1.076, 9.00),(1.52, 2.67),(1.40, 3.05),(1.28, 3.75),(1.058, 11.00)]
+odds = [(1.33, 3.40),(1.66, 2.30),(1.64, 2.35),(1.090, 8.00),(1.090, 8.00),(1.18, 5.25)]
 
 print("------------------")
 
@@ -46,14 +47,22 @@ with open("../data sets/make_prediction.csv", "w+", newline='') as outfile:
         home_implied_probability = round(1/(home_odds*bookmakers_fee),3)
         away_implied_probability = round(1/(away_odds*bookmakers_fee),3)
 
+        # Difference of implied probability and networks probability
+        prob_dif = prediction - home_implied_probability 
+        
         #Prints to terminal
-        print("Implied probability: {} that {} wins. Odds: {}".format(home_implied_probability, home_team, home_odds))
-        print("Prediction: {} that {} wins.".format(prediction, home_team))
+        print("Implied probability: {:.3f}% that {} wins. Odds: {}".format(home_implied_probability*100, home_team, home_odds))
+        print("Prediction: {:.3f}% that {} wins.".format(prediction*100, home_team))
 
-        print("Implied probability: {} that {} will win. Odds: {}".format(away_implied_probability, away_team, away_odds))
-        print("Network gives a probability of {} that {} wins.".format(1-prediction, away_team))
-    
+        print("Implied probability: {:.3f}% that {} will win. Odds: {}".format(away_implied_probability*100, away_team, away_odds))
+        print("Network gives a probability of {:.3f}% that {} wins.".format((1-prediction)*100, away_team))
+
+        print("Network and implied probability differs with {:.3f}%,".format(abs(prob_dif)*100), end = ' ')
+        if prob_dif > 0:
+            print("in favor of {}".format(home_team))
+        else:
+            print("in favor of {}".format(away_team))
         print("------------------")
 
         #Prints to file
-        filewriter.writerow([home_team, away_team, str(date.today()), home_odds, away_odds, round(prediction, 3)]) 
+        filewriter.writerow([home_team, away_team, str(date.today() + timedelta(days=1)), home_odds, away_odds, round(prediction, 3)]) 

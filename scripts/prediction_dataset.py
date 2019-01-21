@@ -39,7 +39,7 @@ with open("../data sets/2018_19_dataset.csv",'r') as infile:
         # Write clean data to outfile.
         data.append(clean_row)
 
-with open("prediction_dataset.csv", "w", newline='') as outfile:
+with open("../data sets/prediction_dataset.csv", "w", newline='') as outfile:
 
     filewriter = csv.writer(outfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
     
@@ -74,7 +74,7 @@ with open("prediction_dataset.csv", "w", newline='') as outfile:
             filewriter.writerow(home_team + away_team + home_stats + away_stats + outcome + date)
 
 # Sort training data by date. 
-df = pd.read_csv("prediction_dataset.csv")
+df = pd.read_csv("../data sets/prediction_dataset.csv")
 df = df.sort_values('date')
 
-df.to_csv('prediction_dataset.csv', index=False)
+df.to_csv('../data sets/prediction_dataset.csv', index=False)
