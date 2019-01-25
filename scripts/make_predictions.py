@@ -1,5 +1,7 @@
-# This script use the trained netork to make new predictions and compares them to the bookmakers probabilitie. 
-# It requires (atm) you to enter the competing teams and the bookmakers odds for the game.
+# This script uses the trained model to make predictions for upcoming games.
+# Competing teams and odds are collected from the bookmakers site automatically. 
+# Download chromedriver from https://chromedriver.storage.googleapis.com/index.html?path=2.45/ 
+# and unzip it in this folder (scripts). 
 
 import csv
 import pandas as pd
@@ -11,19 +13,36 @@ from validation_dataset import team_average
 from datetime import date
 from datetime import timedelta
 
+from selenium import webdriver 
+import time as time
+
 # Load trained network. 
 model = load_model("../trained network/net_1")
 
 # Load data set to calculate season averages below.
 df = pd.read_csv("../data sets/prediction_dataset.csv")
 
-# Games to be predicted as tuples of (home, away). 
-games = [('Wizards', 'Knicks'), ('Pacers', '76ers'),('Hornets', 'Kings'), ('Raptors','Suns'), ('Nuggets', 'Bulls'), ('Thunder', 'Lakers')]
+# Collect games and odds from bookmaker.  
+chrome_driver_path = "./chromedriver_win32/chromedriver.exe"
+browser = webdriver.Chrome(executable_path=chrome_driver_path)
 
-# Bookmakers odds (home, away).
-odds = [(1.33, 3.40),(1.66, 2.30),(1.64, 2.35),(1.090, 8.00),(1.090, 8.00),(1.18, 5.25)]
+url = "https://www.bet365.com/?&cb=10326423948#/AC/B18/C20604387/D48/E1453/F10/"
+browser.get(url)
+browser.get(url) # Get past advert.
+time.sleep(5)
 
-print("------------------")
+teams = browser.find_elements_by_class_name("sl-CouponParticipantGameLineTwoWay_NameText ")
+team_iterator = iter([team.text.split(" ")[-1] for team in teams])
+games = list(zip(team_iterator, team_iterator)) # Tuples (away team, home team).
+
+odds = browser.find_elements_by_class_name("gl-ParticipantCentered_NoHandicap")
+odds = [odd.text for odd in odds][-len(teams):]
+odds_iterator = iter([float(odd) for odd in odds])
+odds = list(zip(odds_iterator, odds_iterator)) # Tuples (away odds, home odds).
+
+browser.quit()
+
+print("------------------------------------------------------------------")
 
 with open("../data sets/make_prediction.csv", "w+", newline='') as outfile:
 
@@ -31,7 +50,8 @@ with open("../data sets/make_prediction.csv", "w+", newline='') as outfile:
 
     # Make prediction for each game.
     for i, game in enumerate(games):
-        home_team, away_team = game
+
+        away_team, home_team = game
 
         # Calculate season averages for teams.
         home_team_averages = team_average(home_team, len(df), df)
@@ -42,27 +62,18 @@ with open("../data sets/make_prediction.csv", "w+", newline='') as outfile:
         prediction = model.predict(game)[0][0]
 
         # Calculate bookmakers implied probabilities. 
-        home_odds, away_odds = odds[i]
+        away_odds, home_odds = odds[i]
         bookmakers_fee = 1.041
-        home_implied_probability = round(1/(home_odds*bookmakers_fee),3)
-        away_implied_probability = round(1/(away_odds*bookmakers_fee),3)
-
-        # Difference of implied probability and networks probability
-        prob_dif = prediction - home_implied_probability 
+        home_implied_probability = round(1/(home_odds*bookmakers_fee), 3)
+        away_implied_probability = round(1/(away_odds*bookmakers_fee), 3)
         
-        #Prints to terminal
         print("Implied probability: {:.3f}% that {} wins. Odds: {}".format(home_implied_probability*100, home_team, home_odds))
         print("Prediction: {:.3f}% that {} wins.".format(prediction*100, home_team))
 
         print("Implied probability: {:.3f}% that {} will win. Odds: {}".format(away_implied_probability*100, away_team, away_odds))
-        print("Network gives a probability of {:.3f}% that {} wins.".format((1-prediction)*100, away_team))
+        print("Prediction: {:.3f}% that {} wins.".format((1-prediction)*100, away_team))
 
-        print("Network and implied probability differs with {:.3f}%,".format(abs(prob_dif)*100), end = ' ')
-        if prob_dif > 0:
-            print("in favor of {}".format(home_team))
-        else:
-            print("in favor of {}".format(away_team))
-        print("------------------")
+        print("------------------------------------------------------------------")
 
-        #Prints to file
-        filewriter.writerow([home_team, away_team, str(date.today() + timedelta(days=1)), home_odds, away_odds, round(prediction, 3)]) 
+        # Write to file.
+        filewriter.writerow([home_team, away_team, str(date.today() + timedelta(days=1)), home_odds, away_odds, round(prediction, 3)])
