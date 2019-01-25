@@ -35,6 +35,8 @@ To see the accuracy over time and predictions made for the 2019 season with the 
 * Pandas 0.23.4
 * Beautifulsoup 4.6.3
 * sklearn 0.20.1
+* Selenium 3.141.0
+* Chromedriver 2.45 (unzip in scripts folder)
 
 To make new predictions using the trained netork (net_1):
 1. Run NBA_scraper.py to collect the latest box scores from espn.com. 
