@@ -29,11 +29,13 @@ browser = webdriver.Chrome(executable_path=chrome_driver_path)
 url = "https://www.bet365.com/?&cb=10326423948#/AC/B18/C20604387/D48/E1453/F10/"
 browser.get(url)
 browser.get(url) # Get past advert.
-time.sleep(5)
+time.sleep(8)
 
 teams = browser.find_elements_by_class_name("sl-CouponParticipantGameLineTwoWay_NameText ")
 team_iterator = iter([team.text.split(" ")[-1] for team in teams])
+tea,
 games = list(zip(team_iterator, team_iterator)) # Tuples (away team, home team).
+
 
 odds = browser.find_elements_by_class_name("gl-ParticipantCentered_NoHandicap")
 odds = [odd.text for odd in odds][-len(teams):]
@@ -53,9 +55,16 @@ with open("../data sets/make_prediction.csv", "w+", newline='') as outfile:
 
         away_team, home_team = game
 
+        # Fix name error.
+        if away_team == "Blazers":
+            away_team = "Trail Blazers"
+        
+        if home_team == "Blazers":
+            home_team = "Trail Blazers"
+
         # Calculate season averages for teams.
-        home_team_averages = team_average(home_team, len(df), df)
-        away_team_averages = team_average(away_team, len(df), df)
+        home_team_averages = team_average(home_team, len(df), df, "home")
+        away_team_averages = team_average(away_team, len(df), df, "away")
         game = np.asarray([home_team_averages + away_team_averages])
     
         # Make prediction.

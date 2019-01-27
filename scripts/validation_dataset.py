@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import csv
 
-def team_average(team_name, game_number, df):
+def team_average(team_name, game_number, df, status):
     """ 
     Calculates average performance of a team up until a certain game.
     Requires a team_name (string) and a game_number (int).
@@ -16,16 +16,19 @@ def team_average(team_name, game_number, df):
     # Get games up until game_number (exclusive).
     validation_df = df[:game_number]
 
-    # Find all games played at home by team and select their stats. 
-    home_games = validation_df.loc[validation_df['home_team'] == team_name].iloc[:, 2:12]
+    if status == "home":
+        
+        # Find all games played at home by team and select their stats. 
+        home_games = validation_df.loc[validation_df['home_team'] == team_name].iloc[:, 2:12]
+        
+        return home_games.mean().values.tolist()
     
-    # Find all games played away by team and select their stats. 
-    away_games = validation_df.loc[validation_df['away_team'] == team_name].iloc[:, 12:-2]
+    if status == "away":
 
-    # Calculate average statistics for team.
-    averages = np.divide(home_games.mean().values + away_games.mean().values, 2).tolist()
+        # Find all games played away by team and select their stats. 
+        away_games = validation_df.loc[validation_df['away_team'] == team_name].iloc[:, 12:-2]
 
-    return averages
+        return away_games.mean().values.tolist()
 
 # Create validation data only if script is run by itself.
 if __name__ == "__main__":
@@ -55,8 +58,8 @@ if __name__ == "__main__":
             outcome = validation_game['outcome'].tolist()[0]
             
             # Calculate team averages up until current game. 
-            home_team_averages = team_average(home_team_name, i, df)
-            away_team_averages = team_average(away_team_name, i, df)
+            home_team_averages = team_average(home_team_name, i, df, "home")
+            away_team_averages = team_average(away_team_name, i, df, "away")
         
             validation_vector = home_team_averages + away_team_averages + [outcome]
             
