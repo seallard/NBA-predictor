@@ -33,7 +33,6 @@ time.sleep(8)
 
 teams = browser.find_elements_by_class_name("sl-CouponParticipantGameLineTwoWay_NameText ")
 team_iterator = iter([team.text.split(" ")[-1] for team in teams])
-tea,
 games = list(zip(team_iterator, team_iterator)) # Tuples (away team, home team).
 
 
