@@ -6,11 +6,11 @@
 import csv
 import pandas as pd
 
-with open("clean_dataset.csv") as infile:    
+with open("../data sets/clean_dataset.csv") as infile:    
     reader = csv.reader(infile)
     data = list(reader)
 
-with open("training_dataset.csv", "w") as outfile:
+with open("../data sets/training_dataset.csv", "w") as outfile:
 
     filewriter = csv.writer(outfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
     
@@ -44,7 +44,7 @@ with open("training_dataset.csv", "w") as outfile:
             filewriter.writerow(home_team + away_team + home_stats + away_stats + outcome + date)
               
 # Sort training data by date. 
-df = pd.read_csv("training_dataset.csv")
+df = pd.read_csv("../data sets/training_dataset.csv")
 df = df.sort_values('date')
 
-df.to_csv('training_dataset.csv', index=False)
+df.to_csv('../data sets/training_dataset.csv', index=False)

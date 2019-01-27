@@ -4,8 +4,8 @@ import numpy as np
 from keras.models import load_model
 from validation_dataset import team_average
 
-model = load_model("net_1")
-df = pd.read_csv("training_dataset.csv")
+model = load_model("../trained network/net_1")
+df = pd.read_csv("../data sets/training_dataset.csv")
 
 correct_predictions = 0
 made_predictions = 0
@@ -13,8 +13,8 @@ made_predictions = 0
 for i, game in df.iterrows():
 
     if i > 510:
-        home_team_averages = team_average(game['home_team'], i, df)
-        away_team_averages = team_average(game['away_team'], i, df)
+        home_team_averages = team_average(game['home_team'], i, df, "home")
+        away_team_averages = team_average(game['away_team'], i, df, "away")
         averages = np.asarray([home_team_averages + away_team_averages])
 
         prediction = int(round(model.predict(averages)[0][0]))

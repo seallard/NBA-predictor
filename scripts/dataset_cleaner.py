@@ -3,11 +3,11 @@
 
 import csv
 
-with open("raw_dataset.csv",'r') as infile:
+with open("../data sets/raw_dataset.csv",'r') as infile:
 
     next(infile) # Skip header.
 
-    outfile = open("clean_dataset.csv",'w', newline='')
+    outfile = open("../data sets/clean_dataset.csv",'w', newline='')
     writer = csv.writer(outfile)
     writer.writerow(['team', 'pts', 'fg%', '3pt%', 'ft%', 'oreb', 'dreb', 'ast', 'stl', 'blk', 'to', 'date'])
 

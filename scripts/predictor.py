@@ -57,8 +57,8 @@ for i in range(20):
 
     # Train model.
     model = model_config()
-    model.fit(x=X_train_normalized, y=y_train, batch_size=20, epochs=30, verbose=1, callbacks = [tensorboard], 
+    model.fit(x=X_train_normalized, y=y_train, batch_size=20, epochs=26, verbose=1, callbacks = [tensorboard], 
                 validation_data=(X_test_normalized,y_test), shuffle=False)
     
     # Save trained model.
-    model.save("../trained_network/net_{}".format(i))
+    model.save("../trained network/net_{}".format(i))

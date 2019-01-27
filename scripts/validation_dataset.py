@@ -34,10 +34,10 @@ def team_average(team_name, game_number, df, status):
 if __name__ == "__main__":
 
     # Load training data set.
-    df = pd.read_csv("training_dataset.csv")
+    df = pd.read_csv("../data sets/training_dataset.csv")
     
     # Collect average statistics of teams in the validation games and write to csv. 
-    with open("validation_dataset.csv", "w", newline='') as outfile:
+    with open("../data sets/validation_dataset.csv", "w", newline='') as outfile:
     
         filewriter = csv.writer(outfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
 
