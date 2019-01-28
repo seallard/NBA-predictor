@@ -16,8 +16,9 @@ from datetime import timedelta
 from selenium import webdriver 
 import time as time
 
-# Load trained network. 
-model = load_model("../trained network/net_1")
+# Choose model 1 (uses home+away average) or 5 (uses away or home averages).
+model_name = input("Choose net, 1 (tested, ca 70 % acc) or 5 (not tested yet):  \n")
+model = load_model("../trained network/net_{}".format(model_name))
 
 # Load data set to calculate season averages below.
 df = pd.read_csv("../data sets/prediction_dataset.csv")
@@ -62,10 +63,12 @@ with open("../data sets/make_prediction.csv", "w+", newline='') as outfile:
             home_team = "Trail Blazers"
 
         # Calculate season averages for teams.
-        home_team_averages = team_average(home_team, len(df), df, "home")
-        away_team_averages = team_average(away_team, len(df), df, "away")
+        home_team_averages = team_average(home_team, len(df), df, "home", model_name)
+        away_team_averages = team_average(away_team, len(df), df, "away", model_name)
+        
+        # Input vector of home team and away team averages.
         game = np.asarray([home_team_averages + away_team_averages])
-    
+        
         # Make prediction.
         prediction = model.predict(game)[0][0]
 

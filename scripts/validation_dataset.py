@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import csv
 
-def team_average(team_name, game_number, df, status):
+def team_average(team_name, game_number, df, status, model):
     """ 
     Calculates average performance of a team up until a certain game.
     Requires a team_name (string) and a game_number (int).
@@ -15,20 +15,21 @@ def team_average(team_name, game_number, df, status):
 
     # Get games up until game_number (exclusive).
     validation_df = df[:game_number]
+    home_games = validation_df.loc[validation_df['home_team'] == team_name].iloc[:, 2:12]
+    away_games = validation_df.loc[validation_df['away_team'] == team_name].iloc[:, 12:-2]
 
-    if status == "home":
+    if model == "1":
+        averages = np.divide(home_games.mean().values + away_games.mean().values, 2).tolist()
+        return averages
+
+    if model == "5":
+
+        if status == "home":
+            return home_games.mean().values.tolist()
         
-        # Find all games played at home by team and select their stats. 
-        home_games = validation_df.loc[validation_df['home_team'] == team_name].iloc[:, 2:12]
+        if status == "away":
+            return away_games.mean().values.tolist()
         
-        return home_games.mean().values.tolist()
-    
-    if status == "away":
-
-        # Find all games played away by team and select their stats. 
-        away_games = validation_df.loc[validation_df['away_team'] == team_name].iloc[:, 12:-2]
-
-        return away_games.mean().values.tolist()
 
 # Create validation data only if script is run by itself.
 if __name__ == "__main__":
