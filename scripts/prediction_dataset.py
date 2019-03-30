@@ -40,6 +40,7 @@ with open("../data sets/2018_19_dataset.csv", 'r') as infile:
         # Write clean data to outfile.
         data.append(clean_row)
 
+
 with open("../data sets/prediction_dataset.csv", "w", newline='') as outfile:
 
     filewriter = csv.writer(outfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
@@ -49,33 +50,32 @@ with open("../data sets/prediction_dataset.csv", "w", newline='') as outfile:
                          'ast_h', 'stl_h', 'blk_h', 'to_h', 'pts_a', 'fg%_a', '3pt%_a', 'ft%_a', 'oreb_a',
                          'dreb_a', 'ast_a', 'stl_a', 'blk_a', 'to_a', 'outcome', 'date'])
 
-    for i, row in enumerate(data):
-        if i > len(data)-2:
-            break
+    i = 0
+    while i < (len(data)-2):
 
-        # Even rows contain away team score, odd contain home team score.
-        if i % 2:
-            away_stats = data[i][1:-1]
-            away_team = [data[i][0]]
+        row = data[i]
 
-            home_stats = data[i+1][1:-1]
-            home_team = [data[i+1][0]]
+        # Even rows are home team scores, odd away team scores.
+        away_stats = data[i][1:-1]
+        away_team = [data[i][0]]
 
-            date = [row[-1]]
+        home_stats = data[i+1][1:-1]
+        home_team = [data[i+1][0]]
 
-            # Check outcome of game.
-            if int(home_stats[0]) - int(away_stats[0]) > 0:
+        date = [row[-1]]
+        
+        if int(home_stats[0]) - int(away_stats[0]) > 0:
+            outcome = [1]
 
-                outcome = [1]  # Home team won.
+        else:
+            outcome = [0]  # Home team lost.
 
-            else:
-                outcome = [0]  # Home team lost.
+        # Save home, away statistics, date and outcome to one row.
+        filewriter.writerow(home_team + away_team + home_stats + away_stats + outcome + date)
+        
+        i += 2
 
-            # Save home, away statistics, date and outcome to one row.
-            filewriter.writerow(home_team + away_team +
-                                home_stats + away_stats + outcome + date)
-
-# Sort training data by date.
+# Sort data by date.
 df = pd.read_csv("../data sets/prediction_dataset.csv")
 df = df.sort_values('date')
 
