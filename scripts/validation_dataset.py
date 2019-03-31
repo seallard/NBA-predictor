@@ -15,7 +15,7 @@ def team_average(team_name, game_number, df, status, model):
     """
 
     # Get games up until game_number (exclusive).
-    validation_df = df[:game_number]
+    validation_df = df.iloc[:game_number,:]
     home_games = validation_df.loc[validation_df['home_team']
                                    == team_name].iloc[:, 2:12]
     away_games = validation_df.loc[validation_df['away_team']
@@ -64,8 +64,8 @@ if __name__ == "__main__":
             outcome = validation_game['outcome'].tolist()[0]
 
             # Calculate team averages up until current game.
-            home_team_averages = team_average(home_team_name, i, df, "home")
-            away_team_averages = team_average(away_team_name, i, df, "away")
+            home_team_averages = team_average(home_team_name, i, df, "home", "1")
+            away_team_averages = team_average(away_team_name, i, df, "away", "1")
 
             validation_vector = home_team_averages + \
                 away_team_averages + [outcome]
