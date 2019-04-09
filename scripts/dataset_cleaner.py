@@ -1,12 +1,12 @@
-# This script filters the raw data set and extracts the relevant statistics to clean_dataset.csv.
-
 import csv
 
-with open("../data sets/raw_dataset.csv", 'r') as infile:
+year = "2017_18"
+
+with open("../data sets/raw_{}.csv".format(year), 'r') as infile:
 
     next(infile)  # Skip header.
 
-    outfile = open("../data sets/clean_dataset.csv", 'w', newline='')
+    outfile = open("../data sets/clean_{}.csv".format(year), 'w', newline='')
     writer = csv.writer(outfile)
     writer.writerow(['team', 'pts', 'fg%', '3pt%', 'ft%',
                      'oreb', 'dreb', 'ast', 'stl', 'blk', 'to', 'date'])
@@ -17,17 +17,17 @@ with open("../data sets/raw_dataset.csv", 'r') as infile:
         # Calculate field goals made percentage.
         fg_made = row[0].split('-')[0]
         fg_attempted = row[0].split('-')[-1]
-        fg_percent = round(int(fg_made)/int(fg_attempted), 4)
+        fg_percent = round(int(fg_made)/int(fg_attempted), 3)
 
         # Calculate three-points made percentage.
         threept_made = row[1].split('-')[0]
         threept_attempted = row[1].split('-')[-1]
-        threept_percent = round(int(threept_made)/int(threept_attempted), 4)
+        threept_percent = round(int(threept_made)/int(threept_attempted), 3)
 
         # Calculate freethrows made percentage.
         ft_made = row[2].split('-')[0]
         ft_attempted = row[1].split('-')[-1]
-        ft_percent = round(int(ft_made)/int(ft_attempted), 4)
+        ft_percent = round(int(ft_made)/int(ft_attempted), 3)
 
         # Extract remaining variables of interest.
         date = row[-1].strip('\n')

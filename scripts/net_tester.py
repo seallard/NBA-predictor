@@ -3,29 +3,34 @@
 import pandas as pd
 import numpy as np
 from keras.models import load_model
-from validation_dataset import team_average
 import math
+from sklearn.preprocessing import MinMaxScaler
 
-model = load_model("../trained network/net_1")
-df = pd.read_csv("../data sets/training_dataset.csv")
+year = "2017_18"
+df = pd.read_csv("../data sets/training_{}.csv".format(year))
 
-correct_predictions = 0
-made_predictions = 0
+scaler = MinMaxScaler()
 
-for i, game in df.iterrows():
 
-    home_team_averages = team_average(game['home_team'], i, df, "home", "1")
-    away_team_averages = team_average(game['away_team'], i, df, "away","1")
-    averages = np.asarray([home_team_averages + away_team_averages])
+for m in range(20):
 
-    prediction = model.predict(averages)[0][0]
+    model = load_model("../trained network/net_{}".format(m))
 
-    if not math.isnan(prediction):
-        made_predictions += 1
-        outcome = game['outcome']
+    correct_predictions = 0
+    made_predictions = 0
+    
+    for i, game in df.iterrows():
+        test = [game.values[:-1]]
+        normalized_averages = scaler.fit_transform(test)
+        
+        prediction = model.predict(normalized_averages)[0][0]
 
-        if int(round(prediction)) == outcome:
-            correct_predictions += 1
+        if not math.isnan(prediction):
+            made_predictions += 1
 
-print("Number of predictions made: " + str(made_predictions))
-print("Correct predictions: " + str(correct_predictions/made_predictions))
+            if int(round(prediction)) == game['outcome']:
+                correct_predictions += 1
+
+    print("Model: {}".format(m))
+    print("Number of predictions made: " + str(made_predictions))
+    print("Correct predictions: " + str(correct_predictions/made_predictions))

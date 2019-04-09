@@ -16,60 +16,62 @@ from datetime import timedelta
 from selenium import webdriver
 import time as time
 
-# Choose model 1 (uses average of home and away) or 5 (uses away or home averages).
-model_name = input("Choose net, 1 (70 % acc) or 5 (not tested):  \n")
+year = "2018_19"
+
+model_name = input("Choose net:  \n")
 model = load_model("../trained network/net_{}".format(model_name))
+df = pd.read_csv("../data sets/training_{}.csv".format(year))
 
-# Load data set to calculate season averages below.
-df = pd.read_csv("../data sets/prediction_dataset.csv")
 
-# Collect games and odds from bookmaker.
-chrome_driver_path = "./chromedriver_win32/chromedriver.exe"
-browser = webdriver.Chrome(executable_path=chrome_driver_path)
+def get_games_today():
 
-url = "https://www.bet365.com/?&cb=10326423948#/AC/B18/C20604387/D48/E1453/F10/"
-browser.get(url)
-browser.get(url)  # Get past advert.
-time.sleep(8)
+    # Collect games and odds from bookmaker.
+    chrome_driver_path = "./chromedriver_win32/chromedriver.exe"
+    browser = webdriver.Chrome(executable_path=chrome_driver_path)
 
-teams = browser.find_elements_by_class_name("sl-CouponParticipantGameLineTwoWay_NameText ")
-team_iterator = iter([team.text.split(" ")[-1] for team in teams])
-games = list(zip(team_iterator, team_iterator))
+    url = "https://www.bet365.com/?&cb=10326423948#/AC/B18/C20604387/D48/E1453/F10/"
+    browser.get(url)
+    browser.get(url)  # Get past advert.
+    time.sleep(8)
 
-odds = browser.find_elements_by_class_name("gl-ParticipantCentered_NoHandicap")
-odds = [odd.text for odd in odds][-len(teams):]
-odds_iterator = iter([float(odd) for odd in odds])
-odds = list(zip(odds_iterator, odds_iterator))
+    teams = browser.find_elements_by_class_name("sl-CouponParticipantGameLineTwoWay_NameText ")
+    team_iterator = iter([team.text.split(" ")[-1] for team in teams])
+    games = list(zip(team_iterator, team_iterator))
+    games = [g.replace('Blazers', 'Trail Blazers') for g in games]
 
-browser.quit()
+    odds = browser.find_elements_by_class_name("gl-ParticipantCentered_NoHandicap")
+    odds = [odd.text for odd in odds][-len(teams):]
+    odds_iterator = iter([float(odd) for odd in odds])
+    odds = list(zip(odds_iterator, odds_iterator))
+
+    browser.quit()
+
+    return (odds, games)
+
+odds, games = get_games_today()
 
 print("------------------------------------------------------------------")
 
-with open("../data sets/make_prediction.csv", "w+", newline='') as outfile:
+
+with open("../data sets/results.csv", "a", newline='') as outfile:
 
     filewriter = csv.writer(outfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+    date = str(date.today() + timedelta(days=1))
 
     # Make prediction for each game.
     for i, game in enumerate(games):
 
         away_team, home_team = game
 
-        # Fix name error.
-        if away_team == "Blazers":
-            away_team = "Trail Blazers"
-
-        if home_team == "Blazers":
-            home_team = "Trail Blazers"
-
         # Calculate season averages for teams.
-        home_team_averages = team_average(home_team, len(df), df, "home", model_name)
-        away_team_averages = team_average(away_team, len(df), df, "away", model_name)
+        home_team_averages = team_average(home_team, len(df), df)
+        away_team_averages = team_average(away_team, len(df), df)
 
         # Input vector of home team and away team averages.
         game = np.asarray([home_team_averages + away_team_averages])
 
         # Make prediction.
-        home_prediction = model.predict(game)[0][0]
+        home_prediction = round(model.predict(game)[0][0], 3)
         away_prediction = 1-home_prediction
 
         # Calculate bookmakers implied probabilities.
@@ -87,5 +89,4 @@ with open("../data sets/make_prediction.csv", "w+", newline='') as outfile:
         print("------------------------------------------------------------------")
 
         # Write to file.
-        filewriter.writerow([home_team, away_team, str(date.today(
-        ) + timedelta(days=1)), home_odds, away_odds, round(home_prediction, 3)])
+        filewriter.writerow([home_team, away_team, date, home_odds, away_odds, home_prediction])

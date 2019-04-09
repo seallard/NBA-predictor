@@ -5,9 +5,12 @@ import time
 import pandas as pd
 from datetime import datetime
 
-# Load game id:s scraped previously (to reduce number of requests).
+raw_file_path = "../data sets/raw_2018_19.csv"
+season = "2019"
+
+# Load game id:s scraped previously.
 try:
-    df = pd.read_csv("../data sets/2018_19_dataset.csv", error_bad_lines=False)
+    df = pd.read_csv(raw_file_path, error_bad_lines=False)
     previous_ids = set(df['id'].tolist())
     previous = True
     
@@ -32,7 +35,7 @@ game_ids = []
 
 for name in team_tags:
     print(name)
-    soup = soupify('http://www.espn.com/nba/team/schedule/_/name/' + name + '/season/2019/seasontype/2')
+    soup = soupify('http://www.espn.com/nba/team/schedule/_/name/' + name + '/season/' + season + '/seasontype/2')
     
     table = soup.findChildren('table')[0]
 
@@ -44,9 +47,10 @@ for name in team_tags:
             
             if game_id not in game_ids and int(game_id) not in previous_ids:
                 game_ids.append(game_id)
-                       
+
+
 # Collect box scores and team names for each collected game id and write to csv.
-with open("../data sets/2018_19_dataset.csv", 'a', newline='') as f:
+with open(raw_file_path, 'a', newline='') as f:
     filewriter = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
 
     if not previous:
@@ -70,7 +74,7 @@ with open("../data sets/2018_19_dataset.csv", 'a', newline='') as f:
         
         for div in soup.find_all('div', class_='team home'):
             
-             # Save team and home or away status in tuple (name, home=1)
+            # Save team and home or away status in tuple (name, home=1)
             teams.append((div.find('span', class_='short-name').text, 1))
 
         # Collect box scores for current game.
