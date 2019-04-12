@@ -8,6 +8,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard
+from keras.callbacks import TensorBoard, ModelCheckpoint
 
 scaler = MinMaxScaler()
 
@@ -40,7 +41,7 @@ def model_config():
     model = Sequential()
 
     # Add fully connected hidden layer.
-    model.add(Dense(units=20, activation='relu'))
+    model.add(Dense(units=12, activation='relu'))
 
     # Add output neuron.
     model.add(Dense(units=1, activation='sigmoid'))
@@ -52,7 +53,10 @@ def model_config():
     return model
 
 
-# Repeat training.
+filepath = "../trained network/{epoch:02d}-{val_acc:.2f}"
+val_acc = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+val_loss = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+
 for i in range(20):
 
     # Create tensorboard log.
@@ -60,8 +64,6 @@ for i in range(20):
 
     # Train model.
     model = model_config()
-    model.fit(x=x_train_normalized, y=y_train, batch_size=20, epochs=26, verbose=1, callbacks=[tensorboard],
+    model.fit(x=x_train_normalized, y=y_train, batch_size=20, epochs=26, verbose=1, callbacks=[tensorboard, val_acc, val_loss],
               validation_data=(x_validation_normalized, y_validation), shuffle=False)
 
-    # Save trained model.
-    model.save("../trained network/net_{}".format(i))

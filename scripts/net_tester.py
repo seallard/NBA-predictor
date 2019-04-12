@@ -5,6 +5,7 @@ import numpy as np
 from keras.models import load_model
 import math
 from sklearn.preprocessing import MinMaxScaler
+import os
 
 year = "2017_18"
 scaler = MinMaxScaler()
@@ -12,18 +13,18 @@ scaler = MinMaxScaler()
 df = pd.read_csv("../data sets/training_{}.csv".format(year))
 norm_df = scaler.fit_transform(df)
 
-for m in range(10):
 
-    model = load_model("../trained network/net_{}".format(m))
+for net in os.listdir("../trained network/"):
+
+    model = load_model("../trained network/" + net)
 
     correct_predictions = 0
     made_predictions = 0
     
     for game in norm_df:
         
-        stats = np.reshape(game[:-1], (-1, len(game[:-1])))
+        stats = np.reshape(game[:-1], (1, 20))
         prediction = model.predict(stats)[0][0]
-        
 
         if not math.isnan(prediction):
             made_predictions += 1
@@ -31,6 +32,5 @@ for m in range(10):
             if int(round(prediction)) == game[-1]:
                 correct_predictions += 1
 
-    print("Model: {}".format(m))
-    print("Number of predictions made: " + str(made_predictions))
-    print("Correct predictions: " + str(correct_predictions/made_predictions))
+    print("Model: {}".format(net))
+    print("Correct predictions: " + str(round(100*correct_predictions/made_predictions, 3)) + " %")
