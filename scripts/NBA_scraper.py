@@ -133,4 +133,4 @@ if __name__ == "__main__":
     df = df[['team', 'fg', 'fg%', '3pt', '3pt%', 'ft', 'ft%', 'oreb', 'dreb', 'reb', 
              'ast', 'stl', 'blk', 'to', 'pf', 'pts', 'home', 'date', 'game_id']]
 
-    df.to_csv(raw_file_path)
+    df.to_csv(raw_file_path, index=False)
