@@ -1,99 +1,128 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
-import time
 import pandas as pd
 from datetime import datetime
 
 raw_file_path = "../data sets/raw_2018_19.csv"
 season = "2019"
 
-# Load game id:s scraped previously.
-try:
-    df = pd.read_csv(raw_file_path, error_bad_lines=False)
-    previous_ids = set(df['id'].tolist())
-    previous = True
-    
-except FileNotFoundError:
-    previous_ids = []
-    previous = False
-
-def soupify(url):
-    "Takes url and returns document."
-    r = s.get(url)
-    soup = BeautifulSoup(r.text,"html5lib") 
-    time.sleep(1)
-    return soup
-
-team_tags = ['ATL', 'BKN', 'BOS', 'CHA', 'CHI', 'CLE', 'DAL', 'DEN', 'DET'	, 'GSW', 'HOU', 'IND', 'LAC', 'LAL', 'MEM', 
+team_tags = ['ATL', 'BKN', 'BOS', 'CHA', 'CHI', 'CLE', 'DAL', 'DEN', 'DET', 'GSW', 'HOU', 'IND', 'LAC', 'LAL', 'MEM',
              'MIA', 'MIL', 'MIN', 'NO', 'NYK', 'OKC', 'ORL', 'PHI', 'PHX', 'POR', 'SAC', 'SAS', 'TOR', 'UTAH', 'WSH']
 
-s = requests.session()
+session = requests.session()
 
-# Collect game id:s for each team. 
-game_ids = []
+try:
+    df = pd.read_csv(raw_file_path, error_bad_lines=False)
+    old_game_ids = set(df['game_id'].tolist())
+    old_game_ids_exist = True
 
-for name in team_tags:
-    print(name)
-    soup = soupify('http://www.espn.com/nba/team/schedule/_/name/' + name + '/season/' + season + '/seasontype/2')
+except FileNotFoundError:
+    old_game_ids = []
+    old_game_ids_exist = False
+
+
+def parse_html(url):
+    html = session.get(url).text
+    parsed_html = BeautifulSoup(html, "lxml")
+    return parsed_html
+
+
+def get_team_schedule(team_tag):
+    html = parse_html('http://www.espn.com/nba/team/schedule/_/name/' + team_tag + '/season/' + season + '/seasontype/2')
+    team_game_schedule = html.findChildren('table')[0]
+    return team_game_schedule
+
+
+def get_new_game_ids(team_game_schedule):
+
+    new_game_ids = []
+
+    for game in team_game_schedule.find_all("span", {"class": "ml4"}):
+        game_link = game.find_all('a')[0]
+        game_id = game_link['href'].split('=')[-1]
+
+        if game_id not in new_game_ids and int(game_id) not in old_game_ids:
+            new_game_ids.append(game_id)
+            
+    return new_game_ids
+
+
+def get_game_date(game_html):
+    date_string = game_html.title.string.split('-')[-2].replace(",", "").strip()
+    formatted_date = datetime.strptime(date_string, '%B %d %Y').date()
+
+    return formatted_date
+
+
+def get_team_names(game_html):
+
+    for div in game_html.find_all('div', class_='team away'):
+        away_team = div.find('span', class_='short-name').text
+
+    for div in game_html.find_all('div', class_='team home'):
+        home_team = div.find('span', class_='short-name').text
+
+    return away_team, home_team
+
+
+def get_highlight_rows(game_html):
+    table_rows = game_html.find_all('tr', class_='highlight')
+
+    if len(table_rows) < 2: # Filter unplayed games.
+        return None, None
     
-    table = soup.findChildren('table')[0]
+    away_highlight = table_rows[0:2]
+    home_highlight = table_rows[2:4]
 
-    for span in table.find_all("span", {"class": "ml4"}):
-        links = span.find_all('a')
-        
-        for link in links:
-            game_id = link['href'].split('=')[-1]
-            
-            if game_id not in game_ids and int(game_id) not in previous_ids:
-                game_ids.append(game_id)
+    return away_highlight, home_highlight
 
 
-# Collect box scores and team names for each collected game id and write to csv.
-with open(raw_file_path, 'a', newline='') as f:
-    filewriter = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+def extract_box_score(highlight_rows):
+    box_scores = []
 
-    if not previous:
-        filewriter.writerow(['fg','3pt','ft','oreb','dreb','reb','ast','stl','blk','to','pf','pts','id','team','home','date'])
+    for highlight_row in highlight_rows:
+        for score in highlight_row.find_all('td')[1:]:
+            box_score = score.text
 
-    for i, game in enumerate(game_ids):
-        print(game)
+            if len(box_score) > 0:  # Ignore empty fields.
+                if '%' in box_score:
+                    box_score = box_score[:-1]
 
-        soup = soupify('http://www.espn.com/nba/boxscore?gameId=' + game)
-        
-        # Get date for game. 
-        date_string = soup.title.string.split('-')[-2].replace(",","").strip()
-        formatted_date = datetime.strptime(date_string,'%B %d %Y').date()
+                box_scores.append(box_score)
+                
+    return box_scores
 
-        # Collect team names and home/away status for current game.
-        teams = []
-        for div in soup.find_all('div', class_='team away'):
 
-            # Save team and home or away status in tuple (name, away=0)
-            teams.append((div.find('span', class_='short-name').text, 0)) 
-        
-        for div in soup.find_all('div', class_='team home'):
-            
-            # Save team and home or away status in tuple (name, home=1)
-            teams.append((div.find('span', class_='short-name').text, 1))
+if __name__ == "__main__":
 
-        # Collect box scores for current game.
-        data = soup.find_all('tr', class_='highlight')
+    with open(raw_file_path, 'a', newline='') as f:
+        filewriter = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
 
-        # Select correct tables. 
-        if len(data) > 2:
+        if not old_game_ids_exist:
+            filewriter.writerow(['fg', '3pt', 'ft', 'oreb', 'dreb', 'reb', 'ast', 'stl', 'blk', 'to', 
+                                 'pf', 'pts', 'team', 'home', 'date', 'game_id', 'fg%', '3pt%', 'ft%'])
 
-            # Extract relevant highlights.
-            highlights = [data[0], data[2]]
-            
-            for k, scores in enumerate(highlights):
-                team_data = []
+        for team_tag in team_tags:
+            print(team_tag)
+            team_game_schedule = get_team_schedule(team_tag)
+            new_game_ids = get_new_game_ids(team_game_schedule)
 
-                for td_tag in scores.find_all('td'):
-                    
-                    # Ignore empty fields.
-                    if len(td_tag.text) > 0: 
-                        team_data.append(td_tag.text)
+            for game_id in new_game_ids:
+                game_html = parse_html('http://www.espn.com/nba/boxscore?gameId=' + game_id)
 
-                team_data.extend((game, teams[k][0],teams[k][1],formatted_date))
-                filewriter.writerow(team_data[1:])
+                away_highlight, home_highlight = get_highlight_rows(game_html)
+
+                if away_highlight is None:
+                    break
+
+                away_boxscore = extract_box_score(away_highlight)
+                home_boxscore = extract_box_score(home_highlight)
+
+                date = get_game_date(game_html)
+                away_team, home_team = get_team_names(game_html)
+                away_boxscore.extend([away_team, 0, date, game_id])
+                home_boxscore.extend([home_team, 1, date, game_id])
+
+                filewriter.writerow(away_boxscore)
+                filewriter.writerow(home_boxscore)
