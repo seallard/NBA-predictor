@@ -4,8 +4,8 @@ import csv
 import pandas as pd
 from datetime import datetime
 
-raw_file_path = "../data sets/raw_2018_19.csv"
-season = "2019"
+raw_file_path = "../data sets/raw_2017_18.csv"
+season = "2018"
 
 team_tags = ['ATL', 'BKN', 'BOS', 'CHA', 'CHI', 'CLE', 'DAL', 'DEN', 'DET', 'GSW', 'HOU', 'IND', 'LAC', 'LAL', 'MEM',
              'MIA', 'MIL', 'MIN', 'NO', 'NYK', 'OKC', 'ORL', 'PHI', 'PHX', 'POR', 'SAC', 'SAS', 'TOR', 'UTAH', 'WSH']
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
         if not old_game_ids_exist:
             filewriter.writerow(['fg', '3pt', 'ft', 'oreb', 'dreb', 'reb', 'ast', 'stl', 'blk', 'to', 
-                                 'pf', 'pts', 'team', 'home', 'date', 'game_id', 'fg%', '3pt%', 'ft%'])
+                                 'pf', 'pts','fg%', '3pt%', 'ft%', 'team', 'home', 'date', 'game_id'])
 
         for team_tag in team_tags:
             print(team_tag)
@@ -126,3 +126,11 @@ if __name__ == "__main__":
 
                 filewriter.writerow(away_boxscore)
                 filewriter.writerow(home_boxscore)
+    
+    
+    # Restructure csv
+    df = pd.read_csv(raw_file_path, error_bad_lines=False)
+    df = df[['team', 'fg', 'fg%', '3pt', '3pt%', 'ft', 'ft%', 'oreb', 'dreb', 'reb', 
+             'ast', 'stl', 'blk', 'to', 'pf', 'pts', 'home', 'date', 'game_id']]
+
+    df.to_csv(raw_file_path)
